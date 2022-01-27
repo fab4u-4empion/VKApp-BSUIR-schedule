@@ -24,7 +24,7 @@ const App = lazy(() => import('./App'))
 
 const Index = () => {
     return (
-        <ConfigProvider platform="ios" scheme="vkcom_dark">
+        <ConfigProvider>
             <AdaptivityProvider>
                 <AppRoot>
                     <ErrorBoundary>

@@ -14,10 +14,9 @@ import {
 	Tabbar,
 	TabbarItem,
 	Epic,
-	Badge,
 	Placeholder
 } from "@vkontakte/vkui";
-import { Icon28ClipOutline, Icon28MessageOutline, Icon28NewsfeedOutline, Icon28ServicesOutline, Icon28UserCircleOutline, Icon56NewsfeedOutline } from "@vkontakte/icons";
+import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -26,7 +25,7 @@ const App = () => {
 	const isDesktop = viewWidth >= ViewWidth.TABLET;
     const hasHeader = platform !== VKCOM;
 
-	const [activeStory, setActiveStory] = useState("profile");
+	const [activeStory, setActiveStory] = useState("favorites");
 
 	const onStoryChange = (e) => setActiveStory(e.currentTarget.dataset.story);
     
@@ -42,84 +41,52 @@ const App = () => {
 						{hasHeader && <PanelHeader />}
 						<Group>
 							<Cell
-								disabled={activeStory === "feed"}
+								disabled={activeStory === "favorites"}
 								style={
-									activeStory === "feed"
+									activeStory === "favorites"
 									? {
 										backgroundColor: "var(--button_secondary_background)",
 										borderRadius: 8,
 										}
 									: {}
 								}
-								data-story="feed"
+								data-story="favorites"
 								onClick={onStoryChange}
-								before={<Icon28NewsfeedOutline />}
+								before={<Icon28FavoriteOutline />}
 							>
-								Новости
+								Избранное
 							</Cell>
 							<Cell
-								disabled={activeStory === "services"}
+								disabled={activeStory === "groups"}
 								style={
-									activeStory === "services"
+									activeStory === "groups"
 									? {
 										backgroundColor: "var(--button_secondary_background)",
 										borderRadius: 8,
 										}
 									: {}
 								}
-								data-story="services"
+								data-story="groups"
 								onClick={onStoryChange}
-								before={<Icon28ServicesOutline />}
+								before={<Icon28UsersOutline />}
 							>
-								Сервисы
+								Группы
 							</Cell>
 							<Cell
-								disabled={activeStory === "messages"}
+								disabled={activeStory === "teachers"}
 								style={
-									activeStory === "messages"
+									activeStory === "teachers"
 									? {
 										backgroundColor: "var(--button_secondary_background)",
 										borderRadius: 8,
 										}
 									: {}
 								}
-								data-story="messages"
+								data-story="teachers"
 								onClick={onStoryChange}
-								before={<Icon28MessageOutline />}
+								before={<Icon28EducationOutline />}
 							>
-								Сообщения
-							</Cell>
-							<Cell
-								disabled={activeStory === "clips"}
-								style={
-									activeStory === "clips"
-									? {
-										backgroundColor: "var(--button_secondary_background)",
-										borderRadius: 8,
-										}
-									: {}
-								}
-								data-story="clips"
-								onClick={onStoryChange}
-								before={<Icon28ClipOutline />}
-							>
-								Клипы
-							</Cell>
-							<Cell
-								disabled={activeStory === "profile"}
-								style={
-									activeStory === "profile"
-									? {
-										backgroundColor: "var(--button_secondary_background)",
-										borderRadius: 8,
-										}
-									: {}
-								}
-								data-story="profile"
-								onClick={onStoryChange}
-								before={<Icon28UserCircleOutline />}
-							>
-								Профиль
+								Преподаватели
 							</Cell>
 						</Group>
 					</Panel>
@@ -138,96 +105,58 @@ const App = () => {
 						<Tabbar>
 							<TabbarItem
 								onClick={onStoryChange}
-								selected={activeStory === "feed"}
-								data-story="feed"
-								text="Новости"
+								selected={activeStory === "favorites"}
+								data-story="favorites"
+								text="Избранное"
 							>
-								<Icon28NewsfeedOutline />
+								<Icon28FavoriteOutline />
 							</TabbarItem>
 							<TabbarItem
 								onClick={onStoryChange}
-								selected={activeStory === "services"}
-								data-story="services"
-								text="Сервисы"
+								selected={activeStory === "groups"}
+								data-story="groups"
+								text="Группы"
 							>
-								<Icon28ServicesOutline />
+								<Icon28UsersOutline />
 							</TabbarItem>
 							<TabbarItem
 								onClick={onStoryChange}
 								selected={activeStory === "messages"}
-								data-story="messages"
-								label="12"
-								text="Сообщения"
+								data-story="teachers"
+								text="Преподаватели"
 							>
-								<Icon28MessageOutline />
-							</TabbarItem>
-							<TabbarItem
-								onClick={onStoryChange}
-								selected={activeStory === "clips"}
-								data-story="clips"
-								text="Клипы"
-							>
-								<Icon28ClipOutline />
-							</TabbarItem>
-							<TabbarItem
-								onClick={onStoryChange}
-								selected={activeStory === "profile"}
-								data-story="profile"
-								indicator={<Badge mode="prominent" />}
-								text="Профиль"
-							>
-								<Icon28UserCircleOutline />
+								<Icon28EducationOutline />
 							</TabbarItem>
 						</Tabbar>
 					)}
 				>	
-					<View id="feed" activePanel="feed">
-						<Panel id="feed">
-							<PanelHeader>Новости</PanelHeader>
+					<View id="favorites" activePanel="favorites-list">
+						<Panel id="favorites-list">
+							<PanelHeader>Избранное</PanelHeader>
 							<Group style={{ height: "1000px" }}>
 							<Placeholder
-								icon={<Icon56NewsfeedOutline width={56} height={56} />}
-							/>
+								icon={<Icon28FavoriteOutline width={56} height={56} />}
+							>Избранное</Placeholder>
 							</Group>
 						</Panel>
 					</View>
-					<View id="services" activePanel="services">
-						<Panel id="services">
-							<PanelHeader>Сервисы</PanelHeader>
+					<View id="groups" activePanel="groups-list">
+						<Panel id="groups-list">
+							<PanelHeader>Группы</PanelHeader>
 							<Group style={{ height: "1000px" }}>
 							<Placeholder
-								icon={<Icon28ServicesOutline width={56} height={56} />}
-							></Placeholder>
+								icon={<Icon28UsersOutline width={56} height={56} />}
+							>Группы</Placeholder>
 							</Group>
 						</Panel>
 					</View>
-					<View id="messages" activePanel="messages">
-						<Panel id="messages">
-							<PanelHeader>Сообщения</PanelHeader>
+					<View id="teachers" activePanel="teachers-list">
+						<Panel id="teachers-list">
+							<PanelHeader>Преподаватели</PanelHeader>
 							<Group style={{ height: "1000px" }}>
 							<Placeholder
-								icon={<Icon28MessageOutline width={56} height={56} />}
-							></Placeholder>
-							</Group>
-						</Panel>
-					</View>
-					<View id="clips" activePanel="clips">
-						<Panel id="clips">
-							<PanelHeader>Клипы</PanelHeader>
-							<Group style={{ height: "1000px" }}>
-							<Placeholder
-								icon={<Icon28ClipOutline width={56} height={56} />}
-							></Placeholder>
-							</Group>
-						</Panel>
-					</View>
-					<View id="profile" activePanel="profile">
-						<Panel id="profile">
-							<PanelHeader>Профиль</PanelHeader>
-							<Group style={{ height: "1000px" }}>
-							<Placeholder
-								icon={<Icon28UserCircleOutline width={56} height={56} />}
-							></Placeholder>
+								icon={<Icon28EducationOutline width={56} height={56} />}
+							>Преподаваетли</Placeholder>
 							</Group>
 						</Panel>
 					</View>
