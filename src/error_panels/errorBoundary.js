@@ -23,7 +23,6 @@ class ErrorBoundary extends React.Component {
         })
 
         if(this.state.hasError) {
-            
             return (
                 <View>
                     <Panel>

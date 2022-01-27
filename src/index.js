@@ -4,12 +4,7 @@ import bridge from "@vkontakte/vk-bridge";
 import {
   	AdaptivityProvider,
 	ConfigProvider,
-	useAdaptivity,
 	AppRoot,
-	SplitLayout,
-	SplitCol,
-	ViewWidth,
-	PanelHeader,
     ScreenSpinner,
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -25,24 +20,18 @@ bridge.subscribe((e) => {
     }
 });
 
-const MainView = lazy(() => import('./mainView'))
+const App = lazy(() => import('./App'))
 
-const App = () => {
-    const { viewWidth } = useAdaptivity()
-
+const Index = () => {
     return (
-        <ConfigProvider>
+        <ConfigProvider platform="ios" scheme="vkcom_dark">
             <AdaptivityProvider>
                 <AppRoot>
-                    <SplitLayout header={<PanelHeader separator={false} />}>
-                        <SplitCol spaced={viewWidth && viewWidth > ViewWidth.MOBILE}>
-                            <ErrorBoundary>
-                                <Suspense fallback={<ScreenSpinner/>}>
-                                    <MainView/>
-                                </Suspense>
-                            </ErrorBoundary>
-                        </SplitCol>
-                    </SplitLayout>
+                    <ErrorBoundary>
+                        <Suspense fallback={<ScreenSpinner/>}>
+                            <App/>
+                        </Suspense>
+                    </ErrorBoundary>
                 </AppRoot>
             </AdaptivityProvider>
         </ConfigProvider>
@@ -51,7 +40,7 @@ const App = () => {
 
 try {
     localStorage.setItem('test', 'test')
-    ReactDOM.render(<App/>, document.getElementById("root"));
+    ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }
