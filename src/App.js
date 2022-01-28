@@ -14,13 +14,10 @@ import {
 	Tabbar,
 	TabbarItem,
 	Epic,
-	Placeholder,
-	PanelSpinner,
+	Placeholder
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
-import GroupsListErrorBoundary from "./error_panels/groupsListErrorBoundary";
-
-const GroupList = lazy(() => import('./lists/groupsList'))
+import GroupList from "./lists/groupsList";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -149,9 +146,7 @@ const App = () => {
 					<View id="groups" activePanel="groups-list">
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<Suspense fallback={<PanelSpinner />}>
-								<GroupList />
-							</Suspense>
+							<GroupList />
 						</Panel>
 					</View>
 					<View id="teachers" activePanel="teachers-list">
