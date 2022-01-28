@@ -8,6 +8,7 @@ import {
     ScreenSpinner,
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
+import "./styles/styles.css"
 import ErrorBoundary from "./error_panels/errorBoundary";
 import CookiePlaceholder from "./error_panels/cookiePlaceholder";
 

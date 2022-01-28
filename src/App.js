@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {lazy, Suspense, useState} from "react";
 import {
 	View,
 	Panel,
@@ -14,9 +14,13 @@ import {
 	Tabbar,
 	TabbarItem,
 	Epic,
-	Placeholder
+	Placeholder,
+	PanelSpinner,
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
+import GroupsListErrorBoundary from "./error_panels/groupsListErrorBoundary";
+
+const GroupList = lazy(() => import('./lists/groupsList'))
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -121,7 +125,7 @@ const App = () => {
 							</TabbarItem>
 							<TabbarItem
 								onClick={onStoryChange}
-								selected={activeStory === "messages"}
+								selected={activeStory === "teachers"}
 								data-story="teachers"
 								text="Преподаватели"
 							>
@@ -134,36 +138,37 @@ const App = () => {
 						<Panel id="favorites-list">
 							<PanelHeader>Избранное</PanelHeader>
 							<Group style={{ height: "1000px" }}>
-							<Placeholder
-								icon={<Icon28FavoriteOutline width={56} height={56} />}
-							>Избранное</Placeholder>
+								<Placeholder
+									icon={<Icon28FavoriteOutline width={56} height={56} />}
+								>
+									Избранное
+								</Placeholder>
 							</Group>
 						</Panel>
 					</View>
 					<View id="groups" activePanel="groups-list">
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<Group style={{ height: "1000px" }}>
-							<Placeholder
-								icon={<Icon28UsersOutline width={56} height={56} />}
-							>Группы</Placeholder>
-							</Group>
+							<Suspense fallback={<PanelSpinner />}>
+								<GroupList />
+							</Suspense>
 						</Panel>
 					</View>
 					<View id="teachers" activePanel="teachers-list">
 						<Panel id="teachers-list">
 							<PanelHeader>Преподаватели</PanelHeader>
 							<Group style={{ height: "1000px" }}>
-							<Placeholder
-								icon={<Icon28EducationOutline width={56} height={56} />}
-							>Преподаваетли</Placeholder>
+								<Placeholder
+									icon={<Icon28EducationOutline width={56} height={56} />}
+								>
+									Преподаваетли
+								</Placeholder>
 							</Group>
 						</Panel>
 					</View>
 				</Epic>
         	</SplitCol>
 		</SplitLayout>
-		
 	);
 };
 
