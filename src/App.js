@@ -1,4 +1,4 @@
-import React, {lazy, Suspense, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
 	View,
 	Panel,
@@ -28,8 +28,7 @@ const App = () => {
 
 	const [activeStory, setActiveStory] = useState("favorites");
 
-	const onStoryChange = (e) => setActiveStory(e.currentTarget.dataset.story);
-    
+	const onStoryChange = (e) => setActiveStory(e.currentTarget.dataset.story);   
 
 	return (
 		<SplitLayout

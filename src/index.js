@@ -21,6 +21,14 @@ bridge.subscribe((e) => {
     }
 });
 
+bridge
+    .send("VKWebAppStorageGet", { "keys": ["groupsFavorite"] })
+    .then(e => {
+        if (e.keys[0].value) {
+            sessionStorage.setItem("groupsFavorite", e.keys[0].value)
+        }
+    })
+
 const App = lazy(() => import('./App'))
 
 const Index = () => {
@@ -45,6 +53,8 @@ try {
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }
+
+import("./eruda").then(({ default: eruda }) => { }); //runtime download
 
 // if (process.env.NODE_ENV === "development") {
 // 	import("./eruda").then(({ default: eruda }) => {}); //runtime download

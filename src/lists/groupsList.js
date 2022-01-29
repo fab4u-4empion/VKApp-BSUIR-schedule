@@ -1,7 +1,8 @@
-import { Icon28FavoriteOutline } from "@vkontakte/icons"
+import { Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
 import { Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, Search } from "@vkontakte/vkui"
 import axios from "axios"
 import { useEffect, useState } from "react"
+import bridge from "@vkontakte/vk-bridge"
 
 function GroupList() {
 
@@ -13,6 +14,7 @@ function GroupList() {
     const [currentPage, setCurrentPage] = useState(1)
     const [fetching, setFetching] = useState(false)
     const [groupsRender, setGroupsRender] = useState([])
+    const [groupsFavorite, setGroupsFavorite] = useState([])
 
     useEffect(() => {
         window.scrollTo(window.scrollX, 0)
@@ -66,6 +68,15 @@ function GroupList() {
     }, [])
 
     useEffect(() => {
+        if(sessionStorage.getItem("groupsFavorite"))
+            setGroupsFavorite(JSON.parse(sessionStorage.getItem("groupsFavorite")))
+    }, [])
+
+    useEffect(() => {
+        sessionStorage.setItem("groupsFavorite", JSON.stringify(groupsFavorite))
+    }, [groupsFavorite])
+
+    useEffect(() => {
         window.addEventListener("scroll", scrollHandler)
         return function () {
             window.removeEventListener("scroll", scrollHandler)
@@ -78,9 +89,22 @@ function GroupList() {
         }
     }
 
+    const iconButtonOnClickHandler = (e) => {
+        const temp = [...groupsFavorite]
+        if(groupsFavorite.includes(e)) {
+            temp.splice(groupsFavorite.indexOf(e), 1)
+            setGroupsFavorite(temp)
+        } else {
+            temp.push(e)
+            setGroupsFavorite(temp)
+        }
+        bridge
+            .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(temp)})
+    }
+
     return (
         <span>
-            <FixedLayout vertical="top">
+            <FixedLayout vertical="top" filled="true">
                 <Search 
                     readOnly={!load}
                     value={search}
@@ -94,7 +118,12 @@ function GroupList() {
                         groupsRender.map((group) => (
                             <Cell
                                 key={group.id}
-                                after={<IconButton><Icon28FavoriteOutline /></IconButton>}
+                                after={
+                                    <IconButton onClick={() => { iconButtonOnClickHandler(group.id) }}>
+                                        {groupsFavorite.includes(group.id) && <Icon28Favorite />} 
+                                        {!groupsFavorite.includes(group.id) && <Icon28FavoriteOutline />}   
+                                    </IconButton>
+                                }
                             >
                                 {group.name}
                             </Cell>
