@@ -4,9 +4,11 @@ import axios from "axios"
 import { useEffect, useState } from "react"
 import bridge from "@vkontakte/vk-bridge"
 
+
 function GroupList() {
 
     const [search, setSearch] = useState("")
+    const [searchStart, setSearchStart] = useState(true)
     const [load, setLoad] = useState(false)
     const [fail, setFail] = useState(false)
     const [groups, setGroups] = useState([])
@@ -83,6 +85,13 @@ function GroupList() {
         }
     }, [])
 
+    useEffect(() => {
+        window.addEventListener("popstate", popstateHandler)
+        return function () {
+            window.removeEventListener("popstate", popstateHandler)
+        }
+    }, [])
+
     const scrollHandler = (e) => {
         if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
             setFetching(true)
@@ -102,14 +111,40 @@ function GroupList() {
             .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(temp)})
     }
 
+    const onChangeHandler = (v) => {
+        if(searchStart) { 
+            history.pushState({
+                title: "search",
+                searchValue: ""
+            }, "")
+            history.pushState({
+                title: "search",
+                searchValue: v
+            }, "")
+            setSearchStart(false)
+        } else {
+            history.replaceState({
+                title: "search",
+                searchValue: v
+            }, "")
+        }
+        setSearch(v)
+    }
+
+    const popstateHandler = () => {
+        if (history.state && history.state.title === "search") {
+            setSearch(history.state.searchValue)
+        }
+    }
+
     return (
         <span>
             <FixedLayout vertical="top" filled="true">
                 <Search 
                     readOnly={!load}
                     value={search}
-                    onChange={(e) => { setSearch(e.target.value); } }
-                    after={null}
+                    onChange={e =>  onChangeHandler(e.target.value) }
+                    after="Отмена"
                 />
             </FixedLayout>
             <Group style={{ paddingTop: 40}}>

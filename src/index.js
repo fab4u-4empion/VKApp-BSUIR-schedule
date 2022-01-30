@@ -12,22 +12,7 @@ import "./styles/styles.css"
 import ErrorBoundary from "./error_panels/errorBoundary";
 import CookiePlaceholder from "./error_panels/cookiePlaceholder";
 
-// Init VK  Mini App
-bridge.send("VKWebAppInit");
-
-bridge.subscribe((e) => {
-    if (e.detail.type === "VKWebAppUpdateConfig") {
-        document.body.setAttribute("scheme", e.detail.data.scheme);
-    }
-});
-
-bridge
-    .send("VKWebAppStorageGet", { "keys": ["groupsFavorite"] })
-    .then(e => {
-        if (e.keys[0].value) {
-            sessionStorage.setItem("groupsFavorite", e.keys[0].value)
-        }
-    })
+window.history.pushState({title: "appStart"}, "")
 
 const App = lazy(() => import('./App'))
 
@@ -49,6 +34,21 @@ const Index = () => {
 
 try {
     localStorage.setItem('test', 'test')
+    bridge
+        .send("VKWebAppStorageGet", { "keys": ["groupsFavorite"] })
+        .then(e => {
+            if (e.keys[0].value) {
+                sessionStorage.setItem("groupsFavorite", e.keys[0].value)
+            }
+            bridge.send("VKWebAppInit");
+
+            bridge.subscribe((e) => {
+                if (e.detail.type === "VKWebAppUpdateConfig") {
+                    document.body.setAttribute("scheme", e.detail.data.scheme);
+                }
+            });
+            ReactDOM.render(<Index />, document.getElementById("root"));
+        })
     ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
