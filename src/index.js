@@ -12,9 +12,9 @@ import "./styles/styles.css"
 import ErrorBoundary from "./error_panels/errorBoundary";
 import CookiePlaceholder from "./error_panels/cookiePlaceholder";
 
-window.history.pushState({title: "appStart"}, "")
-
 const App = lazy(() => import('./App'))
+
+window.customHistory = []
 
 const Index = () => {
     return (

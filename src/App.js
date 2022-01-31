@@ -28,7 +28,33 @@ const App = () => {
 
 	const [activeStory, setActiveStory] = useState("favorites");
 
-	const onStoryChange = (e) => setActiveStory(e.currentTarget.dataset.story);   
+	useEffect(() => {
+		history.pushState({
+			title: "navigation",
+			activeStory: "favorites"
+		}, "")
+	}, [])
+
+	useEffect(() => {
+		window.addEventListener("popstate", popstateHandler)
+		return function () {
+			window.removeEventListener("popstate", popstateHandler)
+		}
+	}, [])
+
+	const onStoryChange = (e) => {
+		history.pushState({
+			title: "navigation",
+			activeStory: e.currentTarget.dataset.story
+		}, "")
+		setActiveStory(e.currentTarget.dataset.story)
+	} 
+
+	const popstateHandler = () => {
+		if (history.state && history.state.title === "navigation") {
+			setActiveStory(history.state.activeStory)
+		}
+	}
 
 	return (
 		<SplitLayout
