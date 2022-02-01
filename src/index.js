@@ -47,7 +47,7 @@ try {
             });
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
-    //ReactDOM.render(<Index/>, document.getElementById("root"));
+    ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }

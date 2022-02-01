@@ -1,5 +1,5 @@
 import { Icon16CancelCircleOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { Avatar, Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
+import { Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import bridge from "@vkontakte/vk-bridge"
@@ -12,7 +12,7 @@ function GroupList() {
     const [load, setLoad] = useState(localStorage.getItem("groups") ? true : false)
     const [fail, setFail] = useState(false)
     const [groups, setGroups] = useState(localStorage.getItem("groups") ? JSON.parse(localStorage.getItem("groups")) : [])
-    const [groupsResult, setGroupsResult] = useState(
+    const [groupsSearchResult, setGroupsSearchResult] = useState(
         localStorage.getItem("groups")
             ? 
                 JSON.parse(localStorage.getItem("groups")).filter(
@@ -32,14 +32,14 @@ function GroupList() {
         let storyState = history.state
         storyState.searchValue = search
         history.replaceState(storyState, "")
-        setGroupsResult(groups.filter(
+        setGroupsSearchResult(groups.filter(
             ({ name }) => name.toLowerCase().indexOf(search.toLowerCase()) > -1
         ))
     }, [search])
 
     useEffect(() => {
         if (endOfPage) {
-            setGroupsRender([...groupsRender, ...groupsResult.slice(currentPage * 30, currentPage * 30 + 30)])
+            setGroupsRender([...groupsRender, ...groupsSearchResult.slice(currentPage * 30, currentPage * 30 + 30)])
             setCurrentPage(currentPage => currentPage + 1)
             setEndOfPage(false)
         }
@@ -47,8 +47,8 @@ function GroupList() {
 
     useEffect(() => {
         setCurrentPage(1)
-        setGroupsRender(groupsResult.slice(0, 30))
-    }, [groupsResult])
+        setGroupsRender(groupsSearchResult.slice(0, 30))
+    }, [groupsSearchResult])
 
     useEffect(() => {
         sessionStorage.setItem("groupsFavorite", JSON.stringify(groupsFavorite))
@@ -62,7 +62,7 @@ function GroupList() {
                     localStorage.setItem("groups", JSON.stringify(response.data))
                     setGroups(response.data)
                     setLoad(() => {
-                        setGroupsResult(JSON.parse(localStorage.getItem("groups")).filter(
+                        setGroupsSearchResult(JSON.parse(localStorage.getItem("groups")).filter(
                             ({ name }) => name.toLowerCase().indexOf(search.toLowerCase()) > -1
                         ))
                         return true
@@ -89,15 +89,36 @@ function GroupList() {
 
     const iconButtonOnClickHandler = (e) => {
         const temp = [...groupsFavorite]
+        let favoriteChangeErrorSnackbar = null
         if (groupsFavorite.includes(e)) {
             temp.splice(groupsFavorite.indexOf(e), 1)
-            setGroupsFavorite(temp)
+            favoriteChangeErrorSnackbar = 
+                <Snackbar
+                    onClose={() => setSnackbar(null)}
+                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+                    duration={1700}
+                >
+                    Не удалось удалить группу из "Избранное"
+                </Snackbar>
         } else {
             temp.push(e)
-            setGroupsFavorite(temp)
+            favoriteChangeErrorSnackbar =
+                <Snackbar
+                    onClose={() => setSnackbar(null)}
+                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+                    duration={1700}
+                >
+                    Не удалось добавить группу в "Избранное"
+                </Snackbar>
         }
         bridge
             .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(temp)})
+            .then(() => {
+                setGroupsFavorite(temp)
+            })
+            .catch(() => {
+                setSnackbar(favoriteChangeErrorSnackbar)
+            })
     }
 
     const onRefresh = () => {
@@ -108,7 +129,7 @@ function GroupList() {
                 localStorage.setItem("groups", JSON.stringify(response.data))
                 setGroups(response.data)
                 setFetching(() => {
-                    setGroupsResult(JSON.parse(localStorage.getItem("groups")).filter(
+                    setGroupsSearchResult(JSON.parse(localStorage.getItem("groups")).filter(
                         ({ name }) => name.toLowerCase().indexOf(search.toLowerCase()) > -1
                     ))
                     return false
@@ -120,25 +141,27 @@ function GroupList() {
             })
             .catch(() => {
                 setFetching(false)
-                setSnackbar(errorSnackbar)
+                setSnackbar(refreshErrorSnackbar)
             })
     }
 
-    const errorSnackbar = 
+    const refreshErrorSnackbar = 
         <Snackbar
             onClose={() => setSnackbar(null)}
             before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+            duration={1700}
         >
             Не удалось обновить список групп
         </Snackbar>
+        
 
     return (
         <>
             <FixedLayout vertical="top" filled="true">
                 <Search 
-                    readOnly={!load}
+                    readOnly={!load || fetching}
                     value={search}
-                    onChange={e => setSearch(e.target.value) }
+                    onChange={e => fetching ? search : setSearch(e.target.value) }
                     after="Отмена"
                 />
             </FixedLayout>
@@ -148,6 +171,7 @@ function GroupList() {
                     <PullToRefresh
                         onRefresh={onRefresh}
                         isFetching={fetching}
+                        style={{ minHeight: "350px" }}
                     >
                         <Placeholder>Не удалось загрузить список групп</Placeholder>
                     </PullToRefresh>
@@ -156,9 +180,10 @@ function GroupList() {
                     <PullToRefresh
                         onRefresh={onRefresh}
                         isFetching={fetching}
+                        style={{ minHeight: "350px" }}
                     >
                         <List>
-                            {load && groupsResult.length > 0 &&
+                            {load && groupsSearchResult.length > 0 &&
                                 groupsRender.map((group) => (
                                     <Cell
                                         key={group.id}
@@ -173,7 +198,7 @@ function GroupList() {
                                     </Cell>
                                 ))}
                         </List>
-                        { groupsResult.length === 0 && <Footer>Ничего не найдено</Footer> }
+                        { groupsSearchResult.length === 0 && <Footer>Ничего не найдено</Footer> }
                     </PullToRefresh>
                 }
                 {snackbar}
