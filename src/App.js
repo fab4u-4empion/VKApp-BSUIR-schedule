@@ -31,7 +31,8 @@ const App = () => {
 	useEffect(() => {
 		history.pushState({
 			title: "navigation",
-			activeStory: "favorites"
+			activeStory: "favorites",
+			searchValue: ""
 		}, "")
 	}, [])
 
@@ -45,7 +46,8 @@ const App = () => {
 	const onStoryChange = (e) => {
 		history.pushState({
 			title: "navigation",
-			activeStory: e.currentTarget.dataset.story
+			activeStory: e.currentTarget.dataset.story,
+			searchValue: ""
 		}, "")
 		setActiveStory(e.currentTarget.dataset.story)
 	} 

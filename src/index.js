@@ -14,8 +14,6 @@ import CookiePlaceholder from "./error_panels/cookiePlaceholder";
 
 const App = lazy(() => import('./App'))
 
-window.customHistory = []
-
 const Index = () => {
     return (
         <ConfigProvider>
@@ -49,7 +47,7 @@ try {
             });
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
-    ReactDOM.render(<Index/>, document.getElementById("root"));
+    //ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }
