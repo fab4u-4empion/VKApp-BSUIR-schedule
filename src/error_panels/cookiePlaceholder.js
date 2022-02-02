@@ -25,7 +25,7 @@ const CookiePlaceholder = () => {
                             <ErrorBoundary>
                                 <Placeholder Placeholder
                                     stretched
-                                    icon={<Icon56ErrorOutline fill={'var(--red)'}/>}
+                                    icon={<Icon56ErrorOutline fill={'var(--dynamic_red)'}/>}
                                 >
                                     Сервис не может работать с выключенными Cookie <br/> или в режиме инкогнито
                                 </Placeholder>

@@ -7,6 +7,7 @@ import bridge from "@vkontakte/vk-bridge"
 
 function GroupList() {
 
+    const [controller] = useState(new AbortController())
     const [search, setSearch] = useState(history.state.searchValue)
     const [snackbar, setSnackbar] = useState(null)
     const [load, setLoad] = useState(localStorage.getItem("groups") ? true : false)
@@ -54,11 +55,14 @@ function GroupList() {
         sessionStorage.setItem("groupsFavorite", JSON.stringify(groupsFavorite))
     }, [groupsFavorite])
 
-    useEffect(() => {
+    useEffect(() => { 
         if (!load) {
             axios
-                .get("https://journal.bsuir.by/api/v1/groups")
+                .get("https://journal.bsuir.by/api/v1/groups", {
+                    signal: controller.signal
+                })
                 .then(response => {
+                    console.log("test")
                     localStorage.setItem("groups", JSON.stringify(response.data))
                     setGroups(response.data)
                     setLoad(() => {
@@ -80,6 +84,28 @@ function GroupList() {
             window.removeEventListener("scroll", scrollHandler)
         }
     }, [])
+
+    useEffect(() => {
+        window.addEventListener("storageChange", storsgeChangeHandler)
+        return function () {
+            window.removeEventListener("storageChange", storsgeChangeHandler)
+        }
+    }, [])
+
+    useEffect(() => {
+        return function () {
+            controller.abort()
+        }
+    }, [])
+
+    const storsgeChangeHandler = (e) => {
+        if (e.detail.key === "groups") {
+            setGroups(JSON.parse(localStorage.getItem("groups")))
+            setGroupsSearchResult(JSON.parse(localStorage.getItem("groups")).filter(
+                ({ name }) => name.toLowerCase().indexOf(search.toLowerCase()) > -1
+            ))
+        }
+    }
 
     const scrollHandler = (e) => {
         if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
@@ -124,7 +150,9 @@ function GroupList() {
     const onRefresh = () => {
         setFetching(true)
         axios
-            .get("https://journal.bsuir.by/api/v1/groups")
+            .get("https://journal.bsuir.by/api/v1/groups", {
+                signal: controller.signal
+            })
             .then(response => {
                 localStorage.setItem("groups", JSON.stringify(response.data))
                 setGroups(response.data)
@@ -183,7 +211,7 @@ function GroupList() {
                         style={{ minHeight: "350px" }}
                     >
                         <List>
-                            {load && groupsSearchResult.length > 0 &&
+                            { groupsSearchResult.length > 0 &&
                                 groupsRender.map((group) => (
                                     <Cell
                                         key={group.id}

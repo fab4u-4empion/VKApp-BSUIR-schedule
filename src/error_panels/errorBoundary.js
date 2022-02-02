@@ -8,7 +8,6 @@ class ErrorBoundary extends React.Component {
 
         this.state = {
             hasError: false,
-            networkError: false
         }
     }
 
@@ -18,17 +17,13 @@ class ErrorBoundary extends React.Component {
     }
 
     render() {
-        window.addEventListener('offline', () => {
-            this.setState({networkError: true})
-        })
-
         if(this.state.hasError) {
             return (
                 <View>
                     <Panel>
                         <Placeholder
                             stretched
-                            icon={<Icon56WifiOutline fill={'var(--red)'}/>}
+                            icon={<Icon56WifiOutline fill={'var(--dynamic_red)'}/>}
                         >
                             Нет подключения к интернету <br/> Включите интернет и перезагрузите приложение с очисткой кэша
                         </Placeholder>
