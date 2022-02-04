@@ -14,7 +14,8 @@ import {
 	Tabbar,
 	TabbarItem,
 	Epic,
-	Placeholder
+	Placeholder,
+	PanelHeaderBack
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
@@ -27,12 +28,14 @@ const App = () => {
     const hasHeader = platform !== VKCOM;
 
 	const [activeStory, setActiveStory] = useState("favorites");
+	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
+	const [groupName, setGroupName] = useState("")
 
 	useEffect(() => {
 		history.pushState({
-			title: "navigation",
 			activeStory: "favorites",
-			searchValue: ""
+			searchValue: "",
+			groups_activePanel: "groups-list"
 		}, "")
 	}, [])
 
@@ -45,17 +48,28 @@ const App = () => {
 
 	const onStoryChange = (e) => {
 		history.pushState({
-			title: "navigation",
 			activeStory: e.currentTarget.dataset.story,
-			searchValue: ""
+			searchValue: "",
+			groups_activePanel: "groups-list"
 		}, "")
 		setActiveStory(e.currentTarget.dataset.story)
 	} 
 
 	const popstateHandler = () => {
-		if (history.state && history.state.title === "navigation") {
+		if (history.state) {
 			setActiveStory(history.state.activeStory)
+			setGroupsActivePanel(history.state.groups_activePanel)
 		}
+	}
+
+	const groupSelecHandler = (e) => {
+		history.pushState({
+			activeStory: "groups",
+			searchValue: "",
+			groups_activePanel: "group-schedule"
+		}, "")
+		setGroupName(e)
+		setGroupsActivePanel("group-schedule")
 	}
 
 	return (
@@ -163,17 +177,35 @@ const App = () => {
 							<PanelHeader>Избранное</PanelHeader>
 							<Group style={{ height: "1000px" }}>
 								<Placeholder
-									icon={<Icon28FavoriteOutline width={56} height={56} />}
+									icon={ <Icon28FavoriteOutline width={56} height={56} /> }
 								>
 									Избранное
 								</Placeholder>
 							</Group>
 						</Panel>
 					</View>
-					<View id="groups" activePanel="groups-list">
+					<View id="groups" activePanel={groupsActivePanel}>
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<GroupList />
+							<GroupList onGroupSelect={groupSelecHandler} />
+						</Panel>
+						<Panel id="group-schedule">
+							<PanelHeader
+								left={
+									<PanelHeaderBack
+										onClick={ () => history.back() }
+									/>
+								}
+							>
+								{groupName}
+							</PanelHeader>
+							<Group style={{ height: "1000px"}}>
+								<Placeholder
+									icon={<Icon28EducationOutline width={56} height={56} />}
+								>
+									Расписание группы {groupName}
+								</Placeholder>
+							</Group>
 						</Panel>
 					</View>
 					<View id="teachers" activePanel="teachers-list">

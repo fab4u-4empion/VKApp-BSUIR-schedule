@@ -16,7 +16,7 @@ const App = lazy(() => import('./App'))
 
 const Index = () => {
     return (
-        <ConfigProvider>
+        <ConfigProvider platform="android">
             <AdaptivityProvider>
                 <AppRoot>
                     <ErrorBoundary>

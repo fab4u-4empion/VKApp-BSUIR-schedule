@@ -22,14 +22,12 @@ const CookiePlaceholder = () => {
                 <AppRoot>
                     <SplitLayout header={<PanelHeader separator={false} />}>
                         <SplitCol spaced={viewWidth && viewWidth > ViewWidth.MOBILE}>
-                            <ErrorBoundary>
-                                <Placeholder Placeholder
-                                    stretched
-                                    icon={<Icon56ErrorOutline fill={'var(--dynamic_red)'}/>}
-                                >
-                                    Сервис не может работать с выключенными Cookie <br/> или в режиме инкогнито
-                                </Placeholder>
-                            </ErrorBoundary>
+                            <Placeholder Placeholder
+                                stretched
+                                icon={<Icon56ErrorOutline fill={'var(--dynamic_red)'} />}
+                            >
+                                Сервис не может работать с выключенными Cookie <br /> или в режиме инкогнито
+                            </Placeholder>
                         </SplitCol>
                     </SplitLayout>
                 </AppRoot>

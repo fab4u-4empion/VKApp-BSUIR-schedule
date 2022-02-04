@@ -1,11 +1,11 @@
-import { Icon16CancelCircleOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
+import { Icon16CancelCircleOutline, Icon28ChevronRightOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
 import { Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import bridge from "@vkontakte/vk-bridge"
 
 
-function GroupList() {
+function GroupList(props) {
 
     const [controller] = useState(new AbortController())
     const [search, setSearch] = useState(history.state.searchValue)
@@ -39,9 +39,11 @@ function GroupList() {
     }, [search])
 
     useEffect(() => {
-        if (endOfPage) {
+        if (endOfPage && groupsSearchResult.length > 30) {
             setGroupsRender([...groupsRender, ...groupsSearchResult.slice(currentPage * 30, currentPage * 30 + 30)])
             setCurrentPage(currentPage => currentPage + 1)
+            setEndOfPage(false)
+        } else {
             setEndOfPage(false)
         }
     }, [endOfPage])
@@ -113,7 +115,7 @@ function GroupList() {
         }
     }
 
-    const iconButtonOnClickHandler = (e) => {
+    const favoritesFlagButtonClickHandler = (e) => {
         const temp = [...groupsFavorite]
         let favoriteChangeErrorSnackbar = null
         if (groupsFavorite.includes(e)) {
@@ -173,6 +175,10 @@ function GroupList() {
             })
     }
 
+    const openGroupScheduleHandler = (e) => {
+        props.onGroupSelect(e)
+    }
+
     const refreshErrorSnackbar = 
         <Snackbar
             onClose={() => setSnackbar(null)}
@@ -199,7 +205,7 @@ function GroupList() {
                     <PullToRefresh
                         onRefresh={onRefresh}
                         isFetching={fetching}
-                        style={{ minHeight: "350px" }}
+                        style={{ minHeight: 350 }}
                     >
                         <Placeholder>Не удалось загрузить список групп</Placeholder>
                     </PullToRefresh>
@@ -208,17 +214,23 @@ function GroupList() {
                     <PullToRefresh
                         onRefresh={onRefresh}
                         isFetching={fetching}
-                        style={{ minHeight: "350px" }}
+                        style={{ minHeight: 350 }}
                     >
                         <List>
                             { groupsSearchResult.length > 0 &&
                                 groupsRender.map((group) => (
                                     <Cell
+                                        disabled={true}
                                         key={group.id}
+                                        before={
+                                            <IconButton onClick={() => { favoritesFlagButtonClickHandler(group.id) }}>
+                                                {groupsFavorite.includes(group.id) && <Icon28Favorite fill="var(--accent)" />}
+                                                {!groupsFavorite.includes(group.id) && <Icon28FavoriteOutline fill="var(--accent)" />}
+                                            </IconButton>
+                                        }
                                         after={
-                                            <IconButton onClick={() => { iconButtonOnClickHandler(group.id) }}>
-                                                {groupsFavorite.includes(group.id) && <Icon28Favorite />}
-                                                {!groupsFavorite.includes(group.id) && <Icon28FavoriteOutline />}
+                                            <IconButton onClick={() => { openGroupScheduleHandler(group.name) }}>
+                                                <Icon28ChevronRightOutline fill="var(--icon_tertiary)" />
                                             </IconButton>
                                         }
                                     >
