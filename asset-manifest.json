@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/VKApp-BSUIR-schedule/static/css/main.afd7172b.chunk.css",
-    "main.js": "/VKApp-BSUIR-schedule/static/js/main.6ab453c2.chunk.js",
-    "main.js.map": "/VKApp-BSUIR-schedule/static/js/main.6ab453c2.chunk.js.map",
+    "main.js": "/VKApp-BSUIR-schedule/static/js/main.ee17402c.chunk.js",
+    "main.js.map": "/VKApp-BSUIR-schedule/static/js/main.ee17402c.chunk.js.map",
     "runtime-main.js": "/VKApp-BSUIR-schedule/static/js/runtime-main.7b135cb6.js",
     "runtime-main.js.map": "/VKApp-BSUIR-schedule/static/js/runtime-main.7b135cb6.js.map",
     "static/css/2.d5218c18.chunk.css": "/VKApp-BSUIR-schedule/static/css/2.d5218c18.chunk.css",
@@ -27,6 +27,6 @@
     "static/css/2.d5218c18.chunk.css",
     "static/js/2.59b75931.chunk.js",
     "static/css/main.afd7172b.chunk.css",
-    "static/js/main.6ab453c2.chunk.js"
+    "static/js/main.ee17402c.chunk.js"
   ]
 }
