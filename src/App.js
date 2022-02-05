@@ -35,6 +35,7 @@ const App = () => {
 		history.pushState({
 			activeStory: "favorites",
 			searchValue: "",
+			isSearch: false,
 			groups_activePanel: "groups-list"
 		}, "")
 	}, [])
@@ -50,6 +51,7 @@ const App = () => {
 		history.pushState({
 			activeStory: e.currentTarget.dataset.story,
 			searchValue: "",
+			isSearch: false,
 			groups_activePanel: "groups-list"
 		}, "")
 		setActiveStory(e.currentTarget.dataset.story)
@@ -66,10 +68,12 @@ const App = () => {
 		history.pushState({
 			activeStory: "groups",
 			searchValue: "",
+			isSearch: false,
 			groups_activePanel: "group-schedule"
 		}, "")
 		setGroupName(e)
 		setGroupsActivePanel("group-schedule")
+		window.scrollTo(window.scrollX, 0)
 	}
 
 	return (

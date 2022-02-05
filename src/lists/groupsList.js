@@ -22,7 +22,7 @@ function GroupList(props) {
             : 
                 []
     )
-    const [currentPage, setCurrentPage] = useState(1)
+    const [currentPage, setCurrentPage] = useState(history.state.groups_CurrentPage)
     const [endOfPage, setEndOfPage] = useState(false)
     const [fetching, setFetching] = useState(false)
     const [groupsRender, setGroupsRender] = useState([])
@@ -97,6 +97,13 @@ function GroupList(props) {
     useEffect(() => {
         return function () {
             controller.abort()
+        }
+    }, [])
+
+    useEffect(() => {
+        window.addEventListener("popstate", popstateHandler)
+        return function () {
+            window.removeEventListener("popstate", popstateHandler)
         }
     }, [])
 
@@ -179,6 +186,31 @@ function GroupList(props) {
         props.onGroupSelect(e)
     }
 
+    const changeHandler = (e) => {
+        if (history.state.isSearch) {
+            history.replaceState({
+                activeStory: "groups",
+                searchValue: e.target.value,
+                isSearch: true,
+                groups_activePanel: "groups-list"
+            }, "")
+        } else {
+            history.pushState({
+                activeStory: "groups",
+                searchValue: e.target.value,
+                isSearch: true,
+                groups_activePanel: "groups-list"
+            }, "")
+        }
+        setSearch(e.target.value)
+    }
+
+    const popstateHandler = () => {
+        if (history.state) {
+            setSearch(history.state.searchValue)
+        }
+    }
+
     const refreshErrorSnackbar = 
         <Snackbar
             onClose={() => setSnackbar(null)}
@@ -195,7 +227,7 @@ function GroupList(props) {
                 <Search 
                     readOnly={!load || fetching}
                     value={search}
-                    onChange={e => fetching ? search : setSearch(e.target.value) }
+                    onChange={e => fetching ? () => {} : changeHandler(e) }
                     after="Отмена"
                 />
             </FixedLayout>

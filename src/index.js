@@ -16,7 +16,7 @@ const App = lazy(() => import('./App'))
 
 const Index = () => {
     return (
-        <ConfigProvider platform="android">
+        <ConfigProvider>
             <AdaptivityProvider>
                 <AppRoot>
                     <ErrorBoundary>
@@ -47,7 +47,7 @@ try {
             });
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
-    ReactDOM.render(<Index/>, document.getElementById("root"));
+    //ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }
