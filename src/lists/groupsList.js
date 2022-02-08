@@ -129,8 +129,8 @@ function GroupList(props) {
             temp.splice(groupsFavorite.indexOf(e), 1)
             favoriteChangeErrorSnackbar = 
                 <Snackbar
-                    onClose={() => setSnackbar(null)}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+                    onClose={ () => setSnackbar(null) }
+                    before={ <Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} /> }
                     duration={1700}
                 >
                     Не удалось удалить группу из "Избранное"
@@ -139,8 +139,8 @@ function GroupList(props) {
             temp.push(e)
             favoriteChangeErrorSnackbar =
                 <Snackbar
-                    onClose={() => setSnackbar(null)}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+                    onClose={ () => setSnackbar(null) }
+                    before={ <Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} /> }
                     duration={1700}
                 >
                     Не удалось добавить группу в "Избранное"
@@ -192,14 +192,16 @@ function GroupList(props) {
                 activeStory: "groups",
                 searchValue: e.target.value,
                 isSearch: true,
-                groups_activePanel: "groups-list"
+                groups_activePanel: "groups-list",
+                groups_contextOpened: false
             }, "")
         } else {
             history.pushState({
                 activeStory: "groups",
                 searchValue: e.target.value,
                 isSearch: true,
-                groups_activePanel: "groups-list"
+                groups_activePanel: "groups-list",
+                groups_contextOpened: false
             }, "")
         }
         setSearch(e.target.value)
@@ -213,8 +215,8 @@ function GroupList(props) {
 
     const refreshErrorSnackbar = 
         <Snackbar
-            onClose={() => setSnackbar(null)}
-            before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
+            onClose={ () => setSnackbar(null) }
+            before={ <Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} /> }
             duration={1700}
         >
             Не удалось обновить список групп
@@ -227,11 +229,11 @@ function GroupList(props) {
                 <Search 
                     readOnly={!load || fetching}
                     value={search}
-                    onChange={e => fetching ? () => {} : changeHandler(e) }
+                    onChange={ e => fetching ? () => {} : changeHandler(e) }
                     after="Отмена"
                 />
             </FixedLayout>
-            <Group style={{ paddingTop: 40}}>
+            <Group style={{ paddingTop: 40 }}>
                 { !load && !fail && <PanelSpinner /> }
                 { fail && 
                     <PullToRefresh
@@ -255,13 +257,13 @@ function GroupList(props) {
                                         disabled={true}
                                         key={group.id}
                                         before={
-                                            <IconButton onClick={() => { favoritesFlagButtonClickHandler(group.id) }}>
-                                                {groupsFavorite.includes(group.id) && <Icon28Favorite fill="var(--accent)" />}
-                                                {!groupsFavorite.includes(group.id) && <Icon28FavoriteOutline fill="var(--accent)" />}
+                                            <IconButton onClick={() => { favoritesFlagButtonClickHandler(group.name) }}>
+                                                { groupsFavorite.includes(group.name) && <Icon28Favorite fill="var(--accent)" /> }
+                                                { !groupsFavorite.includes(group.name) && <Icon28FavoriteOutline fill="var(--accent)" /> }
                                             </IconButton>
                                         }
                                         after={
-                                            <IconButton onClick={() => { openGroupScheduleHandler(group.name) }}>
+                                            <IconButton onClick={ () => { openGroupScheduleHandler(group.name) } }>
                                                 <Icon28ChevronRightOutline fill="var(--icon_tertiary)" />
                                             </IconButton>
                                         }
