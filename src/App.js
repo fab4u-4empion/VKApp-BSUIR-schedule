@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import bridge from "@vkontakte/vk-bridge"
 import {
 	View,
 	Panel,
@@ -24,6 +23,7 @@ import {
 } from "@vkontakte/vkui";
 import { Icon16CancelCircleOutline, Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
+import { useContextProvider } from "./context/context";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -36,12 +36,9 @@ const App = () => {
 	const [snackbar, setSnackbar] = useState(null)
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [groupName, setGroupName] = useState("")
-	const [contextOpened, setContextOpened] = useState(false)
-	const [groupsFavorite, setGroupsFavorite] = useState(sessionStorage.getItem("groupsFavorite") ? JSON.parse(sessionStorage.getItem("groupsFavorite")) : [])
+	const [contextMenuOpened, setContextMenuOpened] = useState(false)
 
-	useEffect(() => {
-		sessionStorage.setItem("groupsFavorite", JSON.stringify(groupsFavorite))
-	}, [groupsFavorite])
+	const { favoriteGroups, toggleGroupsFavoriteFlag } = useContextProvider()
 
 	useEffect(() => {
 		history.pushState({
@@ -74,7 +71,7 @@ const App = () => {
 	const popstateHandler = () => {
 		if (history.state) {
 			setSnackbar(null)
-			setContextOpened(history.state.groups_contextOpened)
+			setContextMenuOpened(history.state.groups_contextOpened)
 			setActiveStory(history.state.activeStory)
 			setGroupsActivePanel(history.state.groups_activePanel)
 		}
@@ -88,58 +85,27 @@ const App = () => {
 			groups_activePanel: "group-schedule",
 			groups_contextOpened: false
 		}, "")
-		setGroupsFavorite(sessionStorage.getItem("groupsFavorite") ? JSON.parse(sessionStorage.getItem("groupsFavorite")) : [])
 		setGroupName(e)
 		setGroupsActivePanel("group-schedule")
 		window.scrollTo(window.scrollX, 0)
 	}
 
-	const toggleContext = () => {
-		if (!contextOpened)  {
+	const toggleContextMenu = () => {
+		if (!contextMenuOpened)  {
 			document.body.style.overflow = "hidden"
 			let stateObj = history.state
 			stateObj.groups_contextOpened = true
 			history.pushState(stateObj, "")
-			setContextOpened(true)
+			setContextMenuOpened(true)
 		} else {
 			document.body.style.overflow = "visible"
 			history.back()
 		}	
-	}
-
-	const toggleFavoritesFlag = (e) => {
-		const temp = [...groupsFavorite]
-		let favoriteChangeErrorSnackbar = null
-		if (groupsFavorite.includes(e)) {
-			temp.splice(groupsFavorite.indexOf(e), 1)
-			favoriteChangeErrorSnackbar =
-				<Snackbar
-					onClose={() => setSnackbar(null)}
-					before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-					duration={1700}
-				>
-					Не удалось удалить группу из "Избранное"
-				</Snackbar>
-		} else {
-			temp.push(e)
-			favoriteChangeErrorSnackbar =
-				<Snackbar
-					onClose={() => setSnackbar(null)}
-					before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-					duration={1700}
-				>
-					Не удалось добавить группу в "Избранное"
-				</Snackbar>
-		}
-		toggleContext()
-		bridge
-			.send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(temp) })
-			.then(() => {
-				setGroupsFavorite(temp)
-			})
-			.catch(() => {
-				setSnackbar(favoriteChangeErrorSnackbar)
-			})
+	}	
+	
+	const toggleGroupsFavoriteFlagHandler = (groupName) => {
+		toggleGroupsFavoriteFlag(groupName)
+		toggleContextMenu()
 	}
 
 	return (
@@ -271,30 +237,30 @@ const App = () => {
 								<PanelHeaderContent
 									aside={
 										<Icon16Dropdown
-											style={{ transform: `rotate(${contextOpened ? "180deg" : "0" })` }}
+											style={{ transform: `rotate(${contextMenuOpened ? "180deg" : "0" })` }}
 										/>
 									}
-									onClick={ () => toggleContext() }
+									onClick={ () => toggleContextMenu() }
 								>
 									{groupName}
 								</PanelHeaderContent>
 							</PanelHeader>
 							<PanelHeaderContext
-								opened={contextOpened}
-								onClose={ () => toggleContext() }
+								opened={contextMenuOpened}
+								onClose={ () => toggleContextMenu() }
 							>
 								<List>
 									<Cell
 										before={
 											<>
-												{groupsFavorite.includes(groupName) && <Icon28Favorite fill="var(--accent)" />}
-												{!groupsFavorite.includes(groupName) && <Icon28FavoriteOutline fill="var(--accent)" />}
+												{favoriteGroups.includes(groupName) && <Icon28Favorite fill="var(--accent)" />}
+												{!favoriteGroups.includes(groupName) && <Icon28FavoriteOutline fill="var(--accent)" />}
 											</>
 										}
-										onClick={() => toggleFavoritesFlag(groupName) }
+										onClick={() => toggleGroupsFavoriteFlagHandler(groupName) }
 									>
-										{groupsFavorite.includes(groupName) && "Удалить из \"Избранное\""}
-										{!groupsFavorite.includes(groupName) && "Добавить в \"Избранное\""}
+										{favoriteGroups.includes(groupName) && "Удалить из \"Избранное\""}
+										{!favoriteGroups.includes(groupName) && "Добавить в \"Избранное\""}
 									</Cell>
 								</List>
 							</PanelHeaderContext>
@@ -304,7 +270,6 @@ const App = () => {
 								>
 									Расписание группы {groupName}
 								</Placeholder>
-								{snackbar}
 							</Group>
 						</Panel>
 					</View>

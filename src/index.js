@@ -11,27 +11,31 @@ import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
 import ErrorBoundary from "./error_panels/errorBoundary";
 import CookiePlaceholder from "./error_panels/cookiePlaceholder";
+import { СontextProvider } from './context/context'
 
 const App = lazy(() => import('./App'))
 
 const Index = () => {
     return (
-        <ConfigProvider>
-            <AdaptivityProvider>
-                <AppRoot>
-                    <ErrorBoundary>
-                        <Suspense fallback={<ScreenSpinner/>}>
-                            <App/>
-                        </Suspense>
-                    </ErrorBoundary>
-                </AppRoot>
-            </AdaptivityProvider>
-        </ConfigProvider>
+        <СontextProvider>
+            <ConfigProvider>
+                <AdaptivityProvider>
+                    <AppRoot>
+                        <ErrorBoundary>
+                            <Suspense fallback={<ScreenSpinner/>}>
+                                <App/>
+                            </Suspense>
+                        </ErrorBoundary>
+                    </AppRoot>
+                </AdaptivityProvider>
+            </ConfigProvider>
+        </СontextProvider>
     );
 };
 
 try {
     localStorage.setItem('test', 'test')
+    sessionStorage.setItem("groupsFavorite", JSON.stringify([]))
     bridge
         .send("VKWebAppStorageGet", { "keys": ["groupsFavorite"] })
         .then(e => {
@@ -47,7 +51,7 @@ try {
             });
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
-    ReactDOM.render(<Index/>, document.getElementById("root"));
+    //ReactDOM.render(<Index/>, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }

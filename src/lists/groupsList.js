@@ -3,6 +3,7 @@ import { Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Place
 import axios from "axios"
 import { useEffect, useState } from "react"
 import bridge from "@vkontakte/vk-bridge"
+import { useContextProvider } from "../context/context"
 
 
 function GroupList(props) {
@@ -26,7 +27,6 @@ function GroupList(props) {
     const [endOfPage, setEndOfPage] = useState(false)
     const [fetching, setFetching] = useState(false)
     const [groupsRender, setGroupsRender] = useState([])
-    const [groupsFavorite, setGroupsFavorite] = useState(sessionStorage.getItem("groupsFavorite") ? JSON.parse(sessionStorage.getItem("groupsFavorite")) : [])
 
     useEffect(() => {
         window.scrollTo(window.scrollX, 0)
@@ -52,10 +52,6 @@ function GroupList(props) {
         setCurrentPage(1)
         setGroupsRender(groupsSearchResult.slice(0, 30))
     }, [groupsSearchResult])
-
-    useEffect(() => {
-        sessionStorage.setItem("groupsFavorite", JSON.stringify(groupsFavorite))
-    }, [groupsFavorite])
 
     useEffect(() => { 
         if (!load) {
@@ -88,13 +84,6 @@ function GroupList(props) {
     }, [])
 
     useEffect(() => {
-        window.addEventListener("storageChange", storsgeChangeHandler)
-        return function () {
-            window.removeEventListener("storageChange", storsgeChangeHandler)
-        }
-    }, [])
-
-    useEffect(() => {
         return function () {
             controller.abort()
         }
@@ -107,53 +96,12 @@ function GroupList(props) {
         }
     }, [])
 
-    const storsgeChangeHandler = (e) => {
-        if (e.detail.key === "groups") {
-            setGroups(JSON.parse(localStorage.getItem("groups")))
-            setGroupsSearchResult(JSON.parse(localStorage.getItem("groups")).filter(
-                ({ name }) => name.toLowerCase().indexOf(search.toLowerCase()) > -1
-            ))
-        }
-    }
+    const { favoriteGroups, toggleGroupsFavoriteFlag } = useContextProvider()
 
     const scrollHandler = (e) => {
         if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
             setEndOfPage(true)
         }
-    }
-
-    const favoritesFlagButtonClickHandler = (e) => {
-        const temp = [...groupsFavorite]
-        let favoriteChangeErrorSnackbar = null
-        if (groupsFavorite.includes(e)) {
-            temp.splice(groupsFavorite.indexOf(e), 1)
-            favoriteChangeErrorSnackbar = 
-                <Snackbar
-                    onClose={ () => setSnackbar(null) }
-                    before={ <Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} /> }
-                    duration={1700}
-                >
-                    Не удалось удалить группу из "Избранное"
-                </Snackbar>
-        } else {
-            temp.push(e)
-            favoriteChangeErrorSnackbar =
-                <Snackbar
-                    onClose={ () => setSnackbar(null) }
-                    before={ <Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} /> }
-                    duration={1700}
-                >
-                    Не удалось добавить группу в "Избранное"
-                </Snackbar>
-        }
-        bridge
-            .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(temp)})
-            .then(() => {
-                setGroupsFavorite(temp)
-            })
-            .catch(() => {
-                setSnackbar(favoriteChangeErrorSnackbar)
-            })
     }
 
     const onRefresh = () => {
@@ -257,9 +205,9 @@ function GroupList(props) {
                                         disabled={true}
                                         key={group.id}
                                         before={
-                                            <IconButton onClick={() => { favoritesFlagButtonClickHandler(group.name) }}>
-                                                { groupsFavorite.includes(group.name) && <Icon28Favorite fill="var(--accent)" /> }
-                                                { !groupsFavorite.includes(group.name) && <Icon28FavoriteOutline fill="var(--accent)" /> }
+                                            <IconButton onClick={() => { toggleGroupsFavoriteFlag(group.name) }}>
+                                                { favoriteGroups.includes(group.name) && <Icon28Favorite fill="var(--accent)" /> }
+                                                { !favoriteGroups.includes(group.name) && <Icon28FavoriteOutline fill="var(--accent)" /> }
                                             </IconButton>
                                         }
                                         after={
