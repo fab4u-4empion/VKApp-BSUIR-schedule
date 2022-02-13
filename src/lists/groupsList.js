@@ -10,7 +10,6 @@ function GroupList(props) {
 
     const [controller] = useState(new AbortController())
     const [search, setSearch] = useState(history.state.searchValue)
-    const [snackbar, setSnackbar] = useState(null)
     const [load, setLoad] = useState(localStorage.getItem("groups") ? true : false)
     const [fail, setFail] = useState(false)
     const [groups, setGroups] = useState(localStorage.getItem("groups") ? JSON.parse(localStorage.getItem("groups")) : [])
@@ -96,7 +95,7 @@ function GroupList(props) {
         }
     }, [])
 
-    const { favoriteGroups, toggleGroupsFavoriteFlag } = useContextProvider()
+    const { favoriteGroups, toggleGroupsFavoriteFlag, toggleFlagErrorSnackbar } = useContextProvider()
 
     const scrollHandler = (e) => {
         if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
@@ -223,7 +222,7 @@ function GroupList(props) {
                         { groupsSearchResult.length === 0 && <Footer>Ничего не найдено</Footer> }
                     </PullToRefresh>
                 }
-                {snackbar}
+                { toggleFlagErrorSnackbar }
             </Group>
         </>
     )

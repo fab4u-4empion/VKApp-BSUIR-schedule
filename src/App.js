@@ -21,7 +21,7 @@ import {
 	List,
 	Snackbar
 } from "@vkontakte/vkui";
-import { Icon16CancelCircleOutline, Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
+import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
 import { useContextProvider } from "./context/context";
 
@@ -33,12 +33,11 @@ const App = () => {
     const hasHeader = platform !== VKCOM;
 
 	const [activeStory, setActiveStory] = useState("favorites")
-	const [snackbar, setSnackbar] = useState(null)
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [groupName, setGroupName] = useState("")
 	const [contextMenuOpened, setContextMenuOpened] = useState(false)
 
-	const { favoriteGroups, toggleGroupsFavoriteFlag } = useContextProvider()
+	const { favoriteGroups, toggleGroupsFavoriteFlag, toggleFlagErrorSnackbar, offSnackbar } = useContextProvider()
 
 	useEffect(() => {
 		history.pushState({
@@ -58,6 +57,7 @@ const App = () => {
 	}, [])
 
 	const onStoryChange = (e) => {
+		offSnackbar()
 		history.pushState({
 			activeStory: e.currentTarget.dataset.story,
 			searchValue: "",
@@ -70,7 +70,7 @@ const App = () => {
 
 	const popstateHandler = () => {
 		if (history.state) {
-			setSnackbar(null)
+			offSnackbar()
 			setContextMenuOpened(history.state.groups_contextOpened)
 			setActiveStory(history.state.activeStory)
 			setGroupsActivePanel(history.state.groups_activePanel)
@@ -85,6 +85,7 @@ const App = () => {
 			groups_activePanel: "group-schedule",
 			groups_contextOpened: false
 		}, "")
+		offSnackbar()
 		setGroupName(e)
 		setGroupsActivePanel("group-schedule")
 		window.scrollTo(window.scrollX, 0)
@@ -104,8 +105,8 @@ const App = () => {
 	}	
 	
 	const toggleGroupsFavoriteFlagHandler = (groupName) => {
-		toggleGroupsFavoriteFlag(groupName)
 		toggleContextMenu()
+		toggleGroupsFavoriteFlag(groupName)
 	}
 
 	return (
@@ -270,6 +271,7 @@ const App = () => {
 								>
 									Расписание группы {groupName}
 								</Placeholder>
+								{ toggleFlagErrorSnackbar }
 							</Group>
 						</Panel>
 					</View>

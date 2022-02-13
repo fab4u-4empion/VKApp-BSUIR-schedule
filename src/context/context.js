@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useState } from "react";
+import { createContext, useContext, useEffect, useReducer, useState } from "react";
 import bridge from "@vkontakte/vk-bridge"
 import { Snackbar } from "@vkontakte/vkui"
 import { Icon16CancelCircleOutline } from "@vkontakte/icons"
@@ -13,6 +13,10 @@ export const СontextProvider = ({ children }) => {
     const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
     const [snackbar, setSnackbar] = useState(null)
 
+    const offSnackbar = () => {
+        setSnackbar(null)
+    }
+
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
         let errorSnackbar = null
@@ -20,7 +24,7 @@ export const СontextProvider = ({ children }) => {
             favoriteGroupsTemp.splice(favoriteGroupsTemp.indexOf(groupName), 1)
             errorSnackbar =
                 <Snackbar
-                    onClose={() => { }}
+                    onClose={() => { setSnackbar(null) }}
                     before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
                     duration={1700}
                 >
@@ -31,7 +35,7 @@ export const СontextProvider = ({ children }) => {
             favoriteGroupsTemp.push(groupName)
             errorSnackbar =
                 <Snackbar
-                    onClose={() => { }}
+                    onClose={() => { setSnackbar(null) }}
                     before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
                     duration={1700}
                 >
@@ -51,8 +55,9 @@ export const СontextProvider = ({ children }) => {
     return (
         <Context.Provider value={{
             favoriteGroups: favoriteGroups,
-            snackbar: snackbar,
-            toggleGroupsFavoriteFlag
+            toggleFlagErrorSnackbar: snackbar,
+            toggleGroupsFavoriteFlag,
+            offSnackbar
         }}>
             { children }
         </Context.Provider>
