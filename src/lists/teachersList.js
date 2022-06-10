@@ -1,5 +1,5 @@
 import { Icon16CancelCircleOutline, Icon28ChevronRightOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { Avatar, Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
+import { Avatar, SimpleCell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { useContextProvider } from "../context/context"
@@ -27,7 +27,7 @@ function TeachersList(props) {
     const [teachersRender, setTeachersRender] = useState([])
     const [snackbar, setSnackbar] = useState(null)
 
-    //const { favoriteTeachers, toggleTeachersFavoriteFlag, toggleFlagErrorSnackbar } = useContextProvider()
+    const { favoriteTeachers, toggleTeachersFavoriteFlag } = useContextProvider()
 
     useEffect(() => {
         window.scrollTo(window.scrollX, 0)
@@ -48,10 +48,6 @@ function TeachersList(props) {
             setEndOfPage(false)
         }
     }, [endOfPage])
-
-    // useEffect(() => {
-    //     setSnackbar(toggleFlagErrorSnackbar)
-    // }, [toggleFlagErrorSnackbar])
 
     useEffect(() => {
         setCurrentPage(1)
@@ -148,9 +144,9 @@ function TeachersList(props) {
             })
     }
 
-    // const openTeachersScheduleHandler = (e) => {
-    //     props.onTeacherSelect(e)
-    // }
+    const openTeachersScheduleHandler = (id) => {
+        props.onTeacherSelect(id)
+    }
 
     const changeHandler = (e) => {
         if (history.state.isSearch) {
@@ -158,8 +154,8 @@ function TeachersList(props) {
                 activeStory: "teachers",
                 searchValue: e.target.value,
                 isSearch: true,
-                groups_activePanel: "teachers-list",
-                groups_contextOpened: false,
+                teachers_activePanel: "teachers-list",
+                teachers_contextOpened: false,
                 body_overflow: "visible"
             }, "")
         } else {
@@ -167,8 +163,8 @@ function TeachersList(props) {
                 activeStory: "teachers",
                 searchValue: e.target.value,
                 isSearch: true,
-                groups_activePanel: "teachers-list",
-                groups_contextOpened: false,
+                teachers_activePanel: "teachers-list",
+                teachers_contextOpened: false,
                 body_overflow: "visible"
             }, "")
         }
@@ -179,6 +175,12 @@ function TeachersList(props) {
         if (history.state) {
             setSearch(history.state.searchValue)
         }
+    }
+
+    const favoriteFlagClickHandler = (e, teacheID) => {
+        e.stopPropagation()
+        toggleTeachersFavoriteFlag(teacheID)
+        setSnackbar(null)
     }
 
     const refreshErrorSnackbar =
@@ -221,27 +223,22 @@ function TeachersList(props) {
                         <List>
                             {teachersSearchResult.length > 0 &&
                                 teachersRender.map((teacher) => (
-                                    <Cell
-                                        disabled={true}
+                                    <SimpleCell
                                         key={teacher.id}
+                                        onClick={() => openTeachersScheduleHandler(teacher.id)}
                                         before={
                                             <>
-                                                <IconButton onClick={() => { /* toggleTeachersFavoriteFlag(group.name); */ setSnackbar(null) }}>
-                                                    {/* {favoriteTeachers.includes(group.name) && <Icon28Favorite fill="var(--accent)" />} */}
-                                                    {<Icon28FavoriteOutline fill="var(--accent)" />}
+                                                <IconButton onClick={e => favoriteFlagClickHandler(e, teacher.id) }>
+                                                    {favoriteTeachers.includes(teacher.id) && <Icon28Favorite fill="var(--accent)" />}
+                                                    {!favoriteTeachers.includes(teacher.id) && <Icon28FavoriteOutline fill="var(--accent)" />}
                                                 </IconButton>
                                                 <Avatar src={teacher.photoLink} />
                                             </>
                                         }
-                                        after={
-                                            <IconButton onClick={() => { /* openTeacherScheduleHandler(group.name) */ }}>
-                                                <Icon28ChevronRightOutline fill="var(--icon_tertiary)" />
-                                            </IconButton>
-                                        }
                                         description={teacher.rank}
                                     >
                                         {teacher.fullName}
-                                    </Cell>
+                                    </SimpleCell>
                                 ))}
                         </List>
                         {teachersSearchResult.length === 0 && <Footer>Ничего не найдено</Footer>}

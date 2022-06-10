@@ -18,7 +18,8 @@ import {
 	PanelHeaderBack,
 	PanelHeaderContent,
 	PanelHeaderContext,
-	List
+	List,
+	Avatar
 } from "@vkontakte/vkui";
 import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
@@ -34,11 +35,14 @@ const App = () => {
 
 	const [activeStory, setActiveStory] = useState("favorites")
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
+	const [teachersActivePanel, setTeachersActivePanel] = useState("teachers-list")
 	const [groupName, setGroupName] = useState("")
-	const [contextMenuOpened, setContextMenuOpened] = useState(false)
+	const [teacher, setTeacher] = useState({})
+	const [groupContextMenuOpened, setGroupContextMenuOpened] = useState(false)
+	const [teacherContextMenuOpened, setTeacherContextMenuOpened] = useState(false)
 	const [snackbar, setSnackbar] = useState(null)
 
-	const { favoriteGroups, toggleGroupsFavoriteFlag, errorSnackbar } = useContextProvider()
+	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, errorSnackbar } = useContextProvider()
 
 	useEffect(() => {
 		history.pushState({
@@ -69,23 +73,27 @@ const App = () => {
 			searchValue: "",
 			isSearch: false,
 			groups_activePanel: "groups-list",
+			teachers_activePanel: "teachers-list",
 			groups_contextOpened: false,
 			body_overflow: "visible"
 		}, "")
 		setGroupsActivePanel("groups-list")
+		setTeachersActivePanel("teachers-list")
 		setActiveStory(e.currentTarget.dataset.story)
 	} 
 
 	const popstateHandler = () => {
 		if (history.state) {
-			setContextMenuOpened(history.state.groups_contextOpened)
+			setGroupContextMenuOpened(history.state.groups_contextOpened)
+			setTeacherContextMenuOpened(history.state.teachers_contextOpened)
 			setActiveStory(history.state.activeStory)
 			setGroupsActivePanel(history.state.groups_activePanel)
+			setTeachersActivePanel(history.state.teachers_activePanel)
 			document.body.style.overflow = history.state.body_overflow
 		}
 	}
 
-	const groupSelecHandler = (e) => {
+	const groupSelectHandler = (e) => {
 		history.pushState({
 			activeStory: "groups",
 			searchValue: "",
@@ -99,22 +107,56 @@ const App = () => {
 		window.scrollTo(window.scrollX, 0)
 	}
 
-	const toggleContextMenu = () => {
-		if (!contextMenuOpened)  {
+	const teacherSelectHandler = (id, fullName) => {
+		history.pushState({
+			activeStory: "teachers",
+			searchValue: "",
+			isSearch: false,
+			teachers_activePanel: "teacher-schedule",
+			teachers_contextOpened: false,
+			body_overflow: "visible"
+		}, "")
+		const teacherTmp = localStorage.getItem("teachers") ? JSON.parse(localStorage.getItem("teachers")) : []
+		setTeacher(teacherTmp.find(teacher => teacher.id === id))
+		setTeachersActivePanel("teacher-schedule")
+		window.scrollTo(window.scrollX, 0)
+	}
+
+
+	const toggleGroupContextMenu = () => {
+		if (!groupContextMenuOpened)  {
 			let stateObj = history.state
 			stateObj.groups_contextOpened = true
 			stateObj.body_overflow = "hidden"
 			document.body.style.overflow = "hidden"
 			history.pushState(stateObj, "")
-			setContextMenuOpened(true)
+			setGroupContextMenuOpened(true)
 		} else {
 			history.back()
 		}	
 	}	
+
+	const toggleTeacherContextMenu = () => {
+		if (!teacherContextMenuOpened)  {
+			let stateObj = history.state
+			stateObj.teachers_contextOpened = true
+			stateObj.body_overflow = "hidden"
+			document.body.style.overflow = "hidden"
+			history.pushState(stateObj, "")
+			setTeacherContextMenuOpened(true)
+		} else {
+			history.back()
+		}
+	}
 	
 	const toggleGroupsFavoriteFlagHandler = (groupName) => {
-		toggleContextMenu()
+		toggleGroupContextMenu()
 		toggleGroupsFavoriteFlag(groupName)
+	}
+
+	const toggleTeachersFavoriteFlagHandler = (id) => {
+		toggleTeacherContextMenu()
+		toggleTeachersFavoriteFlag(id)
 	}
 
 	return (
@@ -233,31 +275,31 @@ const App = () => {
 					<View id="groups" activePanel={groupsActivePanel}>
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<GroupList onGroupSelect={groupSelecHandler} />
+							<GroupList onGroupSelect={groupSelectHandler} />
 							{ snackbar }
 						</Panel>
 						<Panel id="group-schedule">
 							<PanelHeader
-								left={
+								before={
 									<PanelHeaderBack
-										onClick={ () => history.state.groups_contextOpened ? history.go(-2) : history.back() }
+										onClick={ () => groupContextMenuOpened ? history.go(-2) : history.back() }
 									/>
 								}
 							>
 								<PanelHeaderContent
 									aside={
 										<Icon16Dropdown
-											style={{ transform: `rotate(${contextMenuOpened ? "180deg" : "0" })` }}
+											style={{ transform: `rotate(${groupContextMenuOpened ? "180deg" : "0" })` }}
 										/>
 									}
-									onClick={ () => toggleContextMenu() }
+									onClick={ () => toggleGroupContextMenu() }
 								>
 									{groupName}
 								</PanelHeaderContent>
 							</PanelHeader>
 							<PanelHeaderContext
-								opened={contextMenuOpened}
-								onClose={ () => toggleContextMenu() }
+								opened={groupContextMenuOpened}
+								onClose={ () => toggleGroupContextMenu() }
 							>
 								<List>
 									<Cell
@@ -276,7 +318,7 @@ const App = () => {
 							</PanelHeaderContext>
 							<Group style={{ height: "1000px" }}>
 								<Placeholder
-									icon={<Icon28EducationOutline width={56} height={56} />}
+									icon={<Icon28UsersOutline width={56} height={56} />}
 								>
 									Расписание группы {groupName}
 								</Placeholder>
@@ -284,10 +326,60 @@ const App = () => {
 							</Group>
 						</Panel>
 					</View>
-					<View id="teachers" activePanel="teachers-list">
+					<View id="teachers" activePanel={teachersActivePanel}>
 						<Panel id="teachers-list">
 							<PanelHeader>Преподаватели</PanelHeader>
-							<TeachersList/>
+							<TeachersList onTeacherSelect={teacherSelectHandler}/>
+							{ snackbar }
+						</Panel>
+						<Panel id="teacher-schedule">
+							<PanelHeader
+								before={
+									<PanelHeaderBack
+										onClick={ () => teacherContextMenuOpened ? history.go(-2) : history.back() }
+									/>
+								}
+							>
+								<PanelHeaderContent
+									aside={
+										<Icon16Dropdown
+											style={{ transform: `rotate(${teacherContextMenuOpened ? "180deg" : "0" })` }}
+										/>
+									}
+									onClick={ () => toggleTeacherContextMenu() }
+									before={<Avatar size={36} src={teacher.photoLink} />}
+									status={teacher.rank}
+								>
+									{ teacher.fullName }
+								</PanelHeaderContent>
+							</PanelHeader>
+							<PanelHeaderContext
+								opened={teacherContextMenuOpened}
+								onClose={ () => toggleTeacherContextMenu() }
+							>
+								<List>
+									<Cell
+										before={
+											<>
+												{favoriteTeachers.includes(teacher.id) && <Icon28Favorite fill="var(--accent)" />}
+												{!favoriteTeachers.includes(teacher.id) && <Icon28FavoriteOutline fill="var(--accent)" />}
+											</>
+										}
+										onClick={() => toggleTeachersFavoriteFlagHandler(teacher.id) }
+									>
+										{favoriteTeachers.includes(teacher.id) && "Удалить из \"Избранное\""}
+										{!favoriteTeachers.includes(teacher.id) && "Добавить в \"Избранное\""}
+									</Cell>
+								</List>
+							</PanelHeaderContext>
+							<Group style={{ height: "1000px" }}>
+								<Placeholder
+									icon={<Icon28EducationOutline width={56} height={56} />}
+								>
+									Расписание преподавателя {teacher.fullName}
+								</Placeholder>
+								{ snackbar }
+							</Group>
 						</Panel>
 					</View>
 				</Epic>

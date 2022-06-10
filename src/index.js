@@ -6,6 +6,8 @@ import {
 	ConfigProvider,
 	AppRoot,
     ScreenSpinner,
+    usePlatform,
+    VKCOM
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
@@ -16,9 +18,10 @@ import { СontextProvider } from './context/context'
 const App = lazy(() => import('./App'))
 
 const Index = () => {
+    const platform = usePlatform()
     return (
         <СontextProvider>
-            <ConfigProvider>
+            <ConfigProvider platform={platform === VKCOM ? "android" : platform}>
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>
@@ -36,11 +39,16 @@ const Index = () => {
 try {
     localStorage.setItem('test', 'test')
     sessionStorage.setItem("groupsFavorite", JSON.stringify([]))
+    sessionStorage.setItem("teachersFavorite", JSON.stringify([]))
     bridge
-        .send("VKWebAppStorageGet", { "keys": ["groupsFavorite"] })
+        .send("VKWebAppStorageGet", { "keys": ["groupsFavorite", "teachersFavorite"] })
         .then(e => {
+            console.log(e);
             if (e.keys[0].value) {
                 sessionStorage.setItem("groupsFavorite", e.keys[0].value)
+            }
+            if (e.keys[1].value) {
+                sessionStorage.setItem("teachersFavorite", e.keys[1].value)
             }
             bridge.send("VKWebAppInit");
 

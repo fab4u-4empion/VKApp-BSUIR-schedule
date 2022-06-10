@@ -170,7 +170,7 @@ function GroupList(props) {
         }
     }
 
-    const simpleCellClickHandler = (e, groupName) => {
+    const favoriteFlagClickHandler = (e, groupName) => {
         e.stopPropagation()
         toggleGroupsFavoriteFlag(groupName)
         setSnackbar(null)
@@ -221,7 +221,7 @@ function GroupList(props) {
                                         key={group.id}
                                         expandable={true}
                                         before={
-                                            <IconButton onClick={e => simpleCellClickHandler(e, group.name) }>
+                                            <IconButton onClick={e => favoriteFlagClickHandler(e, group.name) }>
                                                 { favoriteGroups.includes(group.name) && <Icon28Favorite fill="var(--accent)" /> }
                                                 { !favoriteGroups.includes(group.name) && <Icon28FavoriteOutline fill="var(--accent)" /> }
                                             </IconButton>
