@@ -18,11 +18,11 @@ import {
 	PanelHeaderBack,
 	PanelHeaderContent,
 	PanelHeaderContext,
-	List,
-	Snackbar
+	List
 } from "@vkontakte/vkui";
 import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
+import TeachersList from "./lists/teachersList";
 import { useContextProvider } from "./context/context";
 
 const App = () => {
@@ -36,8 +36,9 @@ const App = () => {
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [groupName, setGroupName] = useState("")
 	const [contextMenuOpened, setContextMenuOpened] = useState(false)
+	const [snackbar, setSnackbar] = useState(null)
 
-	const { favoriteGroups, toggleGroupsFavoriteFlag, toggleFlagErrorSnackbar, offSnackbar } = useContextProvider()
+	const { favoriteGroups, toggleGroupsFavoriteFlag, errorSnackbar } = useContextProvider()
 
 	useEffect(() => {
 		history.pushState({
@@ -45,9 +46,14 @@ const App = () => {
 			searchValue: "",
 			isSearch: false,
 			groups_activePanel: "groups-list",
-			groups_contextOpened: false
+			groups_contextOpened: false,
+			body_overflow: "visible"
 		}, "")
 	}, [])
+
+	useEffect(() => {
+		setSnackbar(errorSnackbar)
+	}, [errorSnackbar])
 
 	useEffect(() => {
 		window.addEventListener("popstate", popstateHandler)
@@ -57,23 +63,25 @@ const App = () => {
 	}, [])
 
 	const onStoryChange = (e) => {
-		offSnackbar()
+		setSnackbar(null)
 		history.pushState({
 			activeStory: e.currentTarget.dataset.story,
 			searchValue: "",
 			isSearch: false,
 			groups_activePanel: "groups-list",
-			groups_contextOpened: false
+			groups_contextOpened: false,
+			body_overflow: "visible"
 		}, "")
+		setGroupsActivePanel("groups-list")
 		setActiveStory(e.currentTarget.dataset.story)
 	} 
 
 	const popstateHandler = () => {
 		if (history.state) {
-			offSnackbar()
 			setContextMenuOpened(history.state.groups_contextOpened)
 			setActiveStory(history.state.activeStory)
 			setGroupsActivePanel(history.state.groups_activePanel)
+			document.body.style.overflow = history.state.body_overflow
 		}
 	}
 
@@ -83,9 +91,9 @@ const App = () => {
 			searchValue: "",
 			isSearch: false,
 			groups_activePanel: "group-schedule",
-			groups_contextOpened: false
+			groups_contextOpened: false,
+			body_overflow: "visible"
 		}, "")
-		offSnackbar()
 		setGroupName(e)
 		setGroupsActivePanel("group-schedule")
 		window.scrollTo(window.scrollX, 0)
@@ -93,13 +101,13 @@ const App = () => {
 
 	const toggleContextMenu = () => {
 		if (!contextMenuOpened)  {
-			document.body.style.overflow = "hidden"
 			let stateObj = history.state
 			stateObj.groups_contextOpened = true
+			stateObj.body_overflow = "hidden"
+			document.body.style.overflow = "hidden"
 			history.pushState(stateObj, "")
 			setContextMenuOpened(true)
 		} else {
-			document.body.style.overflow = "visible"
 			history.back()
 		}	
 	}	
@@ -226,6 +234,7 @@ const App = () => {
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
 							<GroupList onGroupSelect={groupSelecHandler} />
+							{ snackbar }
 						</Panel>
 						<Panel id="group-schedule">
 							<PanelHeader
@@ -271,20 +280,14 @@ const App = () => {
 								>
 									Расписание группы {groupName}
 								</Placeholder>
-								{ toggleFlagErrorSnackbar }
+								{ snackbar }
 							</Group>
 						</Panel>
 					</View>
 					<View id="teachers" activePanel="teachers-list">
 						<Panel id="teachers-list">
 							<PanelHeader>Преподаватели</PanelHeader>
-							<Group style={{ height: "1000px" }}>
-								<Placeholder
-									icon={<Icon28EducationOutline width={56} height={56} />}
-								>
-									Преподаваетли
-								</Placeholder>
-							</Group>
+							<TeachersList/>
 						</Panel>
 					</View>
 				</Epic>

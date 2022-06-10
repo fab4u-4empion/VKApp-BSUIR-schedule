@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import bridge from "@vkontakte/vk-bridge"
 import { Snackbar } from "@vkontakte/vkui"
 import { Icon16CancelCircleOutline } from "@vkontakte/icons"
@@ -12,10 +12,6 @@ export const useContextProvider = () => {
 export const СontextProvider = ({ children }) => {
     const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
     const [snackbar, setSnackbar] = useState(null)
-
-    const offSnackbar = () => {
-        setSnackbar(null)
-    }
 
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
@@ -55,9 +51,8 @@ export const СontextProvider = ({ children }) => {
     return (
         <Context.Provider value={{
             favoriteGroups: favoriteGroups,
-            toggleFlagErrorSnackbar: snackbar,
+            errorSnackbar: snackbar,
             toggleGroupsFavoriteFlag,
-            offSnackbar
         }}>
             { children }
         </Context.Provider>

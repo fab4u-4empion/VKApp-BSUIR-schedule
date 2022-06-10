@@ -1,8 +1,7 @@
-import { Icon16CancelCircleOutline, Icon28ChevronRightOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { Cell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
+import { Icon16CancelCircleOutline, Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
+import { SimpleCell, FixedLayout, Footer, Group, IconButton, List, PanelSpinner, Placeholder, PullToRefresh, Search, Snackbar } from "@vkontakte/vkui"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import bridge from "@vkontakte/vk-bridge"
 import { useContextProvider } from "../context/context"
 
 
@@ -26,6 +25,9 @@ function GroupList(props) {
     const [endOfPage, setEndOfPage] = useState(false)
     const [fetching, setFetching] = useState(false)
     const [groupsRender, setGroupsRender] = useState([])
+    const [snackbar, setSnackbar] = useState(null)
+
+    const { favoriteGroups, toggleGroupsFavoriteFlag } = useContextProvider()
 
     useEffect(() => {
         window.scrollTo(window.scrollX, 0)
@@ -55,7 +57,7 @@ function GroupList(props) {
     useEffect(() => { 
         if (!load) {
             axios
-                .get("https://journal.bsuir.by/api/v1/groups", {
+                .get("https://iis.bsuir.by/api/v1/student-groups", {
                     signal: controller.signal
                 })
                 .then(response => {
@@ -89,13 +91,19 @@ function GroupList(props) {
     }, [])
 
     useEffect(() => {
+        return function () {
+            setSnackbar(null)
+        }
+    }, [])
+
+    useEffect(() => {
         window.addEventListener("popstate", popstateHandler)
         return function () {
             window.removeEventListener("popstate", popstateHandler)
         }
     }, [])
 
-    const { favoriteGroups, toggleGroupsFavoriteFlag, toggleFlagErrorSnackbar } = useContextProvider()
+    
 
     const scrollHandler = (e) => {
         if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
@@ -106,7 +114,7 @@ function GroupList(props) {
     const onRefresh = () => {
         setFetching(true)
         axios
-            .get("https://journal.bsuir.by/api/v1/groups", {
+            .get("https://iis.bsuir.by/api/v1/student-groups", {
                 signal: controller.signal
             })
             .then(response => {
@@ -140,7 +148,8 @@ function GroupList(props) {
                 searchValue: e.target.value,
                 isSearch: true,
                 groups_activePanel: "groups-list",
-                groups_contextOpened: false
+                groups_contextOpened: false,
+                body_overflow: "visible"
             }, "")
         } else {
             history.pushState({
@@ -148,7 +157,8 @@ function GroupList(props) {
                 searchValue: e.target.value,
                 isSearch: true,
                 groups_activePanel: "groups-list",
-                groups_contextOpened: false
+                groups_contextOpened: false,
+                body_overflow: "visible"
             }, "")
         }
         setSearch(e.target.value)
@@ -158,6 +168,12 @@ function GroupList(props) {
         if (history.state) {
             setSearch(history.state.searchValue)
         }
+    }
+
+    const simpleCellClickHandler = (e, groupName) => {
+        e.stopPropagation()
+        toggleGroupsFavoriteFlag(groupName)
+        setSnackbar(null)
     }
 
     const refreshErrorSnackbar = 
@@ -200,29 +216,25 @@ function GroupList(props) {
                         <List>
                             { groupsSearchResult.length > 0 &&
                                 groupsRender.map((group) => (
-                                    <Cell
-                                        disabled={true}
+                                    <SimpleCell
+                                        onClick={() => { openGroupScheduleHandler(group.name) }}
                                         key={group.id}
+                                        expandable={true}
                                         before={
-                                            <IconButton onClick={() => { toggleGroupsFavoriteFlag(group.name) }}>
+                                            <IconButton onClick={e => simpleCellClickHandler(e, group.name) }>
                                                 { favoriteGroups.includes(group.name) && <Icon28Favorite fill="var(--accent)" /> }
                                                 { !favoriteGroups.includes(group.name) && <Icon28FavoriteOutline fill="var(--accent)" /> }
                                             </IconButton>
                                         }
-                                        after={
-                                            <IconButton onClick={ () => { openGroupScheduleHandler(group.name) } }>
-                                                <Icon28ChevronRightOutline fill="var(--icon_tertiary)" />
-                                            </IconButton>
-                                        }
                                     >
                                         {group.name}
-                                    </Cell>
+                                    </SimpleCell>
                                 ))}
                         </List>
                         { groupsSearchResult.length === 0 && <Footer>Ничего не найдено</Footer> }
                     </PullToRefresh>
                 }
-                { toggleFlagErrorSnackbar }
+                { snackbar }
             </Group>
         </>
     )
