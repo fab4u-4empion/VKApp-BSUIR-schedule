@@ -61,7 +61,6 @@ function GroupList(props) {
                     signal: controller.signal
                 })
                 .then(response => {
-                    console.log("test")
                     localStorage.setItem("groups", JSON.stringify(response.data))
                     setGroups(response.data)
                     setLoad(() => {

@@ -19,12 +19,16 @@ import {
 	PanelHeaderContent,
 	PanelHeaderContext,
 	List,
-	Avatar
+	Avatar,
+	Header
 } from "@vkontakte/vkui";
 import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
 import TeachersList from "./lists/teachersList";
 import { useContextProvider } from "./context/context";
+import { GroupSchedulePanel } from "./panels/groupSchedulePanel";
+import FavoritesList from "./lists/favoritesList";
+import { TeacherSchedulePanel } from "./panels/teacherSchedulePanel";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -36,6 +40,7 @@ const App = () => {
 	const [activeStory, setActiveStory] = useState("favorites")
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [teachersActivePanel, setTeachersActivePanel] = useState("teachers-list")
+	const [favoritesActivePanel, setFavoritesActivePanel] = useState("favorites-list")
 	const [groupName, setGroupName] = useState("")
 	const [teacher, setTeacher] = useState({})
 	const [groupContextMenuOpened, setGroupContextMenuOpened] = useState(false)
@@ -43,17 +48,6 @@ const App = () => {
 	const [snackbar, setSnackbar] = useState(null)
 
 	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, errorSnackbar } = useContextProvider()
-
-	useEffect(() => {
-		history.pushState({
-			activeStory: "favorites",
-			searchValue: "",
-			isSearch: false,
-			groups_activePanel: "groups-list",
-			groups_contextOpened: false,
-			body_overflow: "visible"
-		}, "")
-	}, [])
 
 	useEffect(() => {
 		setSnackbar(errorSnackbar)
@@ -74,11 +68,13 @@ const App = () => {
 			isSearch: false,
 			groups_activePanel: "groups-list",
 			teachers_activePanel: "teachers-list",
+			favorites_activePanel: "favorites-list",
 			groups_contextOpened: false,
 			body_overflow: "visible"
 		}, "")
 		setGroupsActivePanel("groups-list")
 		setTeachersActivePanel("teachers-list")
+		setFavoritesActivePanel("favorites-list")
 		setActiveStory(e.currentTarget.dataset.story)
 	} 
 
@@ -89,36 +85,61 @@ const App = () => {
 			setActiveStory(history.state.activeStory)
 			setGroupsActivePanel(history.state.groups_activePanel)
 			setTeachersActivePanel(history.state.teachers_activePanel)
+			setFavoritesActivePanel(history.state.favorites_activePanel)
 			document.body.style.overflow = history.state.body_overflow
 		}
 	}
 
 	const groupSelectHandler = (e) => {
-		history.pushState({
-			activeStory: "groups",
-			searchValue: "",
-			isSearch: false,
-			groups_activePanel: "group-schedule",
-			groups_contextOpened: false,
-			body_overflow: "visible"
-		}, "")
+		if (activeStory === "groups") {
+			history.pushState({
+				activeStory: "groups",
+				searchValue: "",
+				isSearch: false,
+				groups_activePanel: "group-schedule",
+				groups_contextOpened: false,
+				body_overflow: "visible"
+			}, "")
+			setGroupsActivePanel("group-schedule")
+		} else {
+			history.pushState({
+				activeStory: "favorites",
+				searchValue: "",
+				isSearch: false,
+				favorites_activePanel: "group-schedule",
+				groups_contextOpened: false,
+				body_overflow: "visible"
+			}, "")
+			setFavoritesActivePanel("group-schedule")
+		}
 		setGroupName(e)
-		setGroupsActivePanel("group-schedule")
 		window.scrollTo(window.scrollX, 0)
 	}
 
-	const teacherSelectHandler = (id, fullName) => {
-		history.pushState({
-			activeStory: "teachers",
-			searchValue: "",
-			isSearch: false,
-			teachers_activePanel: "teacher-schedule",
-			teachers_contextOpened: false,
-			body_overflow: "visible"
-		}, "")
+	const teacherSelectHandler = (id) => {
+		if (activeStory === "teachers") {
+			history.pushState({
+				activeStory: "teachers",
+				searchValue: "",
+				isSearch: false,
+				teachers_activePanel: "teacher-schedule",
+				teachers_contextOpened: false,
+				body_overflow: "visible"
+			}, "")
+			setTeachersActivePanel("teacher-schedule")
+		} else {
+			history.pushState({
+				activeStory: "favorites",
+				searchValue: "",
+				isSearch: false,
+				favorites_activePanel: "teacher-schedule",
+				teachers_contextOpened: false,
+				body_overflow: "visible"
+			}, "")
+			setFavoritesActivePanel("teacher-schedule")
+		}
 		const teacherTmp = localStorage.getItem("teachers") ? JSON.parse(localStorage.getItem("teachers")) : []
 		setTeacher(teacherTmp.find(teacher => teacher.id === id))
-		setTeachersActivePanel("teacher-schedule")
 		window.scrollTo(window.scrollX, 0)
 	}
 
@@ -260,70 +281,53 @@ const App = () => {
 						)
 					}
 				>	
-					<View id="favorites" activePanel="favorites-list">
+					<View id="favorites" activePanel={favoritesActivePanel}>
 						<Panel id="favorites-list">
 							<PanelHeader>Избранное</PanelHeader>
-							<Group style={{ height: "1000px" }}>
-								<Placeholder
-									icon={ <Icon28FavoriteOutline width={56} height={56} /> }
-								>
-									Избранное
-								</Placeholder>
-							</Group>
+							<FavoritesList
+								onGroupSelect={groupSelectHandler}
+								onTeacherSelect={teacherSelectHandler}
+							/>
+							{ snackbar }
+						</Panel>
+						<Panel id="group-schedule">
+							<GroupSchedulePanel
+								groupContextMenuOpened={groupContextMenuOpened}
+								onToggleGroupContextMenu={toggleGroupContextMenu}
+								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
+								snackbar={snackbar}
+								favoriteGroups={favoriteGroups}
+								groupName={groupName}
+							/>
+						</Panel>
+						<Panel id="teacher-schedule">
+							<TeacherSchedulePanel
+								teacherContextMenuOpened={teacherContextMenuOpened}
+								onToggleTeacherContextMenu={toggleTeacherContextMenu}
+								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
+								snackbar={snackbar}
+								favoriteTeachers={favoriteTeachers}
+								teacher={teacher}
+							/>
 						</Panel>
 					</View>
 					<View id="groups" activePanel={groupsActivePanel}>
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<GroupList onGroupSelect={groupSelectHandler} />
+							<GroupList 
+								onGroupSelect={groupSelectHandler} 
+							/>
 							{ snackbar }
 						</Panel>
 						<Panel id="group-schedule">
-							<PanelHeader
-								before={
-									<PanelHeaderBack
-										onClick={ () => groupContextMenuOpened ? history.go(-2) : history.back() }
-									/>
-								}
-							>
-								<PanelHeaderContent
-									aside={
-										<Icon16Dropdown
-											style={{ transform: `rotate(${groupContextMenuOpened ? "180deg" : "0" })` }}
-										/>
-									}
-									onClick={ () => toggleGroupContextMenu() }
-								>
-									{groupName}
-								</PanelHeaderContent>
-							</PanelHeader>
-							<PanelHeaderContext
-								opened={groupContextMenuOpened}
-								onClose={ () => toggleGroupContextMenu() }
-							>
-								<List>
-									<Cell
-										before={
-											<>
-												{favoriteGroups.includes(groupName) && <Icon28Favorite fill="var(--accent)" />}
-												{!favoriteGroups.includes(groupName) && <Icon28FavoriteOutline fill="var(--accent)" />}
-											</>
-										}
-										onClick={() => toggleGroupsFavoriteFlagHandler(groupName) }
-									>
-										{favoriteGroups.includes(groupName) && "Удалить из \"Избранное\""}
-										{!favoriteGroups.includes(groupName) && "Добавить в \"Избранное\""}
-									</Cell>
-								</List>
-							</PanelHeaderContext>
-							<Group style={{ height: "1000px" }}>
-								<Placeholder
-									icon={<Icon28UsersOutline width={56} height={56} />}
-								>
-									Расписание группы {groupName}
-								</Placeholder>
-								{ snackbar }
-							</Group>
+							<GroupSchedulePanel
+								groupContextMenuOpened={groupContextMenuOpened}
+								onToggleGroupContextMenu={toggleGroupContextMenu}
+								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
+								snackbar={snackbar}
+								favoriteGroups={favoriteGroups}
+								groupName={groupName}
+							/>
 						</Panel>
 					</View>
 					<View id="teachers" activePanel={teachersActivePanel}>
@@ -333,53 +337,14 @@ const App = () => {
 							{ snackbar }
 						</Panel>
 						<Panel id="teacher-schedule">
-							<PanelHeader
-								before={
-									<PanelHeaderBack
-										onClick={ () => teacherContextMenuOpened ? history.go(-2) : history.back() }
-									/>
-								}
-							>
-								<PanelHeaderContent
-									aside={
-										<Icon16Dropdown
-											style={{ transform: `rotate(${teacherContextMenuOpened ? "180deg" : "0" })` }}
-										/>
-									}
-									onClick={ () => toggleTeacherContextMenu() }
-									before={<Avatar size={36} src={teacher.photoLink} />}
-									status={teacher.rank}
-								>
-									{ teacher.fullName }
-								</PanelHeaderContent>
-							</PanelHeader>
-							<PanelHeaderContext
-								opened={teacherContextMenuOpened}
-								onClose={ () => toggleTeacherContextMenu() }
-							>
-								<List>
-									<Cell
-										before={
-											<>
-												{favoriteTeachers.includes(teacher.id) && <Icon28Favorite fill="var(--accent)" />}
-												{!favoriteTeachers.includes(teacher.id) && <Icon28FavoriteOutline fill="var(--accent)" />}
-											</>
-										}
-										onClick={() => toggleTeachersFavoriteFlagHandler(teacher.id) }
-									>
-										{favoriteTeachers.includes(teacher.id) && "Удалить из \"Избранное\""}
-										{!favoriteTeachers.includes(teacher.id) && "Добавить в \"Избранное\""}
-									</Cell>
-								</List>
-							</PanelHeaderContext>
-							<Group style={{ height: "1000px" }}>
-								<Placeholder
-									icon={<Icon28EducationOutline width={56} height={56} />}
-								>
-									Расписание преподавателя {teacher.fullName}
-								</Placeholder>
-								{ snackbar }
-							</Group>
+							<TeacherSchedulePanel
+								teacherContextMenuOpened={teacherContextMenuOpened}
+								onToggleTeacherContextMenu={toggleTeacherContextMenu}
+								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
+								snackbar={snackbar}
+								favoriteTeachers={favoriteTeachers}
+								teacher={teacher}
+							/>
 						</Panel>
 					</View>
 				</Epic>

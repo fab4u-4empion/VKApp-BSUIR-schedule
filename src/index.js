@@ -57,6 +57,13 @@ try {
                     document.body.setAttribute("scheme", e.detail.data.scheme);
                 }
             });
+            history.pushState({
+                activeStory: "favorites",
+                searchValue: "",
+                isSearch: false,
+                favorites_activePanel: "favorites-list",
+                body_overflow: "visible"
+            }, "")
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
     //ReactDOM.render(<Index/>, document.getElementById("root"));
