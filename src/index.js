@@ -11,8 +11,8 @@ import {
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
-import ErrorBoundary from "./error_panels/errorBoundary";
-import CookiePlaceholder from "./error_panels/cookiePlaceholder";
+import ErrorBoundary from "./components/error_panels/errorBoundary";
+import CookiePlaceholder from "./components/error_panels/cookiePlaceholder";
 import { СontextProvider } from './context/context'
 
 const App = lazy(() => import('./App'))

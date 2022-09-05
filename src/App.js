@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {
 	View,
 	Panel,
@@ -13,22 +13,15 @@ import {
 	Cell,
 	Tabbar,
 	TabbarItem,
-	Epic,
-	Placeholder,
-	PanelHeaderBack,
-	PanelHeaderContent,
-	PanelHeaderContext,
-	List,
-	Avatar,
-	Header
+	Epic
 } from "@vkontakte/vkui";
-import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
+import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import GroupList from "./lists/groupsList";
 import TeachersList from "./lists/teachersList";
 import { useContextProvider } from "./context/context";
-import { GroupSchedulePanel } from "./panels/groupSchedulePanel";
+import { GroupSchedulePanel } from "./components/panels/groupSchedulePanel";
 import FavoritesList from "./lists/favoritesList";
-import { TeacherSchedulePanel } from "./panels/teacherSchedulePanel";
+import { TeacherSchedulePanel } from "./components/panels/teacherSchedulePanel";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -284,67 +277,67 @@ const App = () => {
 					<View id="favorites" activePanel={favoritesActivePanel}>
 						<Panel id="favorites-list">
 							<PanelHeader>Избранное</PanelHeader>
-							<FavoritesList
+							{/* <FavoritesList
 								onGroupSelect={groupSelectHandler}
 								onTeacherSelect={teacherSelectHandler}
 							/>
-							{ snackbar }
+							{ snackbar } */}
 						</Panel>
 						<Panel id="group-schedule">
-							<GroupSchedulePanel
+							{/* <GroupSchedulePanel
 								groupContextMenuOpened={groupContextMenuOpened}
 								onToggleGroupContextMenu={toggleGroupContextMenu}
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
 								snackbar={snackbar}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
-							/>
+							/> */}
 						</Panel>
 						<Panel id="teacher-schedule">
-							<TeacherSchedulePanel
+							{/* <TeacherSchedulePanel
 								teacherContextMenuOpened={teacherContextMenuOpened}
 								onToggleTeacherContextMenu={toggleTeacherContextMenu}
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
 								snackbar={snackbar}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
-							/>
+							/> */}
 						</Panel>
 					</View>
 					<View id="groups" activePanel={groupsActivePanel}>
 						<Panel id="groups-list">
 							<PanelHeader>Группы</PanelHeader>
-							<GroupList 
+							{/* <GroupList 
 								onGroupSelect={groupSelectHandler} 
 							/>
-							{ snackbar }
+							{ snackbar } */}
 						</Panel>
 						<Panel id="group-schedule">
-							<GroupSchedulePanel
+							{/* <GroupSchedulePanel
 								groupContextMenuOpened={groupContextMenuOpened}
 								onToggleGroupContextMenu={toggleGroupContextMenu}
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
 								snackbar={snackbar}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
-							/>
+							/> */}
 						</Panel>
 					</View>
 					<View id="teachers" activePanel={teachersActivePanel}>
 						<Panel id="teachers-list">
 							<PanelHeader>Преподаватели</PanelHeader>
-							<TeachersList onTeacherSelect={teacherSelectHandler}/>
-							{ snackbar }
+							{/* <TeachersList onTeacherSelect={teacherSelectHandler}/>
+							{ snackbar } */}
 						</Panel>
 						<Panel id="teacher-schedule">
-							<TeacherSchedulePanel
+							{/* <TeacherSchedulePanel
 								teacherContextMenuOpened={teacherContextMenuOpened}
 								onToggleTeacherContextMenu={toggleTeacherContextMenu}
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
 								snackbar={snackbar}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
-							/>
+							/> */}
 						</Panel>
 					</View>
 				</Epic>

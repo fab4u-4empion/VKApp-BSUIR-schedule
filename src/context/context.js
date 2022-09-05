@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import bridge from "@vkontakte/vk-bridge"
-import { Snackbar } from "@vkontakte/vkui"
-import { Icon16CancelCircleOutline } from "@vkontakte/icons"
+import { ErrorSnackbar } from "../components/alerts/errorSnackbar";
 
 const Context = createContext()
 
@@ -16,62 +15,34 @@ export const СontextProvider = ({ children }) => {
 
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
-        let errorSnackbar = null
+        let errorMessage = ""
         if (favoriteGroupsTemp.includes(groupName)) {
             favoriteGroupsTemp.splice(favoriteGroupsTemp.indexOf(groupName), 1)
-            errorSnackbar =
-                <Snackbar
-                    onClose={() => { setSnackbar(null) }}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-                    duration={1700}
-                >
-                    Не удалось удалить группу из "Избранное"
-                </Snackbar>
-
+            errorMessage = 'Не удалось удалить группу из "Избранное"'
         } else {
             favoriteGroupsTemp.push(groupName)
-            errorSnackbar =
-                <Snackbar
-                    onClose={() => { setSnackbar(null) }}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-                    duration={1700}
-                >
-                    Не удалось добавить группу в "Избранное"
-                </Snackbar>
+            errorMessage = 'Не удалось добавить группу в "Избранное"'
         }
+
         bridge
             .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(favoriteGroupsTemp) })
             .then(() => {
                 setFavoritesGroups(favoriteGroupsTemp)
             })
             .catch(() => {
-                setSnackbar(errorSnackbar)
+                setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar}/>)
             })
     }
 
     const toggleTeachersFavoriteFlag = teacherID => {
         let favoriteTeachersTemp = [...favoriteTeachers]
-        let errorSnackbar = null
+        let errorMessage = ""
         if (favoriteTeachersTemp.includes(teacherID)) {
             favoriteTeachersTemp.splice(favoriteTeachersTemp.indexOf(teacherID), 1)
-            errorSnackbar =
-                <Snackbar
-                    onClose={() => { setSnackbar(null) }}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-                    duration={1700}
-                >
-                    Не удалось удалить преподавателя из "Избранное"
-                </Snackbar>
+            errorMessage = 'Не удалось удалить преподавателя из "Избранное"' 
         } else {
             favoriteTeachersTemp.push(teacherID)
-            errorSnackbar =
-                <Snackbar
-                    onClose={() => { setSnackbar(null) }}
-                    before={<Icon16CancelCircleOutline fill="var(--dynamic_red)" width={24} height={24} />}
-                    duration={1700}
-                >
-                    Не удалось добавить преподавателя в "Избранное"
-                </Snackbar>
+            errorMessage = 'Не удалось добавить преподавателя в "Избранное"' 
         }
         bridge
             .send("VKWebAppStorageSet", { "key": "teachersFavorite", "value": JSON.stringify(favoriteTeachersTemp) })
@@ -79,7 +50,7 @@ export const СontextProvider = ({ children }) => {
                 setFavoritesTeachers(favoriteTeachersTemp)
             })
             .catch(() => {
-                setSnackbar(errorSnackbar)
+                setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar} />)
             })
     }
 
