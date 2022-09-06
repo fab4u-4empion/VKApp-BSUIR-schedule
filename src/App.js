@@ -16,12 +16,10 @@ import {
 	Epic
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
-import GroupList from "./lists/groupsList";
-import TeachersList from "./lists/teachersList";
 import { useContextProvider } from "./context/context";
 import { GroupSchedulePanel } from "./components/panels/groupSchedulePanel";
-import FavoritesList from "./lists/favoritesList";
 import { TeacherSchedulePanel } from "./components/panels/teacherSchedulePanel";
+import { GroupsListPanel } from "./components/panels/groupsListPanel";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -30,7 +28,7 @@ const App = () => {
 	const isDesktop = viewWidth >= ViewWidth.TABLET;
     const hasHeader = platform !== VKCOM;
 
-	const [activeStory, setActiveStory] = useState("favorites")
+	const [activeStory, setActiveStory] = useState("groups")
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [teachersActivePanel, setTeachersActivePanel] = useState("teachers-list")
 	const [favoritesActivePanel, setFavoritesActivePanel] = useState("favorites-list")
@@ -306,11 +304,9 @@ const App = () => {
 					</View>
 					<View id="groups" activePanel={groupsActivePanel}>
 						<Panel id="groups-list">
-							<PanelHeader>Группы</PanelHeader>
-							{/* <GroupList 
-								onGroupSelect={groupSelectHandler} 
+							<GroupsListPanel
+								onGroupSelect={groupSelectHandler}
 							/>
-							{ snackbar } */}
 						</Panel>
 						<Panel id="group-schedule">
 							{/* <GroupSchedulePanel

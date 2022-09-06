@@ -1,6 +1,8 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import bridge from "@vkontakte/vk-bridge"
 import { ErrorSnackbar } from "../components/alerts/errorSnackbar";
+import { useLocalStorage } from "../hooks/useLocalStorage";
+import axios from "axios";
 
 const Context = createContext()
 
@@ -12,6 +14,30 @@ export const СontextProvider = ({ children }) => {
     const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
     const [favoriteTeachers, setFavoritesTeachers] = useState(JSON.parse(sessionStorage.getItem("teachersFavorite")))
     const [snackbar, setSnackbar] = useState(null)
+    const [groups, setGroups] = useLocalStorage(null, "groups")
+    const [controller] = useState(new AbortController())
+    const [errorLoadingGroupList, setErrorLoadingGroupList] = useState(false)
+    
+    useEffect(() => {
+        if (!groups) {
+            axios
+                .get("https://iis.bsuir.by/api/v1/student-groups", {
+                    signal: controller.signal
+                })
+                .then(response => {
+                    setGroups(response.data)
+                })
+                .catch(() => {
+                    setErrorLoadingGroupList(true)
+                })
+        }
+    }, [])
+
+    useEffect(() => {
+        return function () {
+            controller.abort()
+        }
+    }, [])
 
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
@@ -59,6 +85,8 @@ export const СontextProvider = ({ children }) => {
             favoriteGroups: favoriteGroups,
             favoriteTeachers: favoriteTeachers,
             errorSnackbar: snackbar,
+            groups: groups,
+            errorLoadingGroupList: errorLoadingGroupList,
             toggleGroupsFavoriteFlag,
             toggleTeachersFavoriteFlag
         }}>
