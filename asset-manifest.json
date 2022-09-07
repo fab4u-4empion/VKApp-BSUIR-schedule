@@ -1,30 +1,30 @@
 {
   "files": {
     "main.css": "/VKApp-BSUIR-schedule/static/css/main.afd7172b.chunk.css",
-    "main.js": "/VKApp-BSUIR-schedule/static/js/main.18191cf7.chunk.js",
-    "main.js.map": "/VKApp-BSUIR-schedule/static/js/main.18191cf7.chunk.js.map",
-    "runtime-main.js": "/VKApp-BSUIR-schedule/static/js/runtime-main.8f7f6b1a.js",
-    "runtime-main.js.map": "/VKApp-BSUIR-schedule/static/js/runtime-main.8f7f6b1a.js.map",
+    "main.js": "/VKApp-BSUIR-schedule/static/js/main.af5830b6.chunk.js",
+    "main.js.map": "/VKApp-BSUIR-schedule/static/js/main.af5830b6.chunk.js.map",
+    "runtime-main.js": "/VKApp-BSUIR-schedule/static/js/runtime-main.244a4670.js",
+    "runtime-main.js.map": "/VKApp-BSUIR-schedule/static/js/runtime-main.244a4670.js.map",
     "static/css/2.260daca1.chunk.css": "/VKApp-BSUIR-schedule/static/css/2.260daca1.chunk.css",
-    "static/js/2.5ab1b76e.chunk.js": "/VKApp-BSUIR-schedule/static/js/2.5ab1b76e.chunk.js",
-    "static/js/2.5ab1b76e.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/2.5ab1b76e.chunk.js.map",
+    "static/js/2.fe828470.chunk.js": "/VKApp-BSUIR-schedule/static/js/2.fe828470.chunk.js",
+    "static/js/2.fe828470.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/2.fe828470.chunk.js.map",
     "static/js/3.9fa4962e.chunk.js": "/VKApp-BSUIR-schedule/static/js/3.9fa4962e.chunk.js",
     "static/js/3.9fa4962e.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/3.9fa4962e.chunk.js.map",
-    "static/js/4.44ff146a.chunk.js": "/VKApp-BSUIR-schedule/static/js/4.44ff146a.chunk.js",
-    "static/js/4.44ff146a.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/4.44ff146a.chunk.js.map",
+    "static/js/4.05186fe1.chunk.js": "/VKApp-BSUIR-schedule/static/js/4.05186fe1.chunk.js",
+    "static/js/4.05186fe1.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/4.05186fe1.chunk.js.map",
     "static/js/5.da851f6a.chunk.js": "/VKApp-BSUIR-schedule/static/js/5.da851f6a.chunk.js",
     "static/js/5.da851f6a.chunk.js.map": "/VKApp-BSUIR-schedule/static/js/5.da851f6a.chunk.js.map",
     "index.html": "/VKApp-BSUIR-schedule/index.html",
     "static/css/2.260daca1.chunk.css.map": "/VKApp-BSUIR-schedule/static/css/2.260daca1.chunk.css.map",
     "static/css/main.afd7172b.chunk.css.map": "/VKApp-BSUIR-schedule/static/css/main.afd7172b.chunk.css.map",
-    "static/js/2.5ab1b76e.chunk.js.LICENSE.txt": "/VKApp-BSUIR-schedule/static/js/2.5ab1b76e.chunk.js.LICENSE.txt",
+    "static/js/2.fe828470.chunk.js.LICENSE.txt": "/VKApp-BSUIR-schedule/static/js/2.fe828470.chunk.js.LICENSE.txt",
     "static/js/3.9fa4962e.chunk.js.LICENSE.txt": "/VKApp-BSUIR-schedule/static/js/3.9fa4962e.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.8f7f6b1a.js",
+    "static/js/runtime-main.244a4670.js",
     "static/css/2.260daca1.chunk.css",
-    "static/js/2.5ab1b76e.chunk.js",
+    "static/js/2.fe828470.chunk.js",
     "static/css/main.afd7172b.chunk.css",
-    "static/js/main.18191cf7.chunk.js"
+    "static/js/main.af5830b6.chunk.js"
   ]
 }
