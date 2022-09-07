@@ -1,5 +1,5 @@
 import { Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, PullToRefresh, Search, SimpleCel, SimpleCell } from "@vkontakte/vkui"
+import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, PullToRefresh, Search, SimpleCell } from "@vkontakte/vkui"
 import { useEffect } from "react"
 import { useContextProvider } from "../../context/context" 
 import { usePagination } from "../../hooks/usePagination"
@@ -15,7 +15,7 @@ export const GroupsListPanel = (props) => {
         fetchingGroups,
         onGroupRefresh,
         toggleGroupFavoriteFlagSnackbar,
-        refreshErrorSnackbar
+        refreshGroupsErrorSnackbar
     } = useContextProvider()
 
     const [search, groupsSearchResult, setSearchValue] = useSearch(groups, "name", history.state.searchValue)
@@ -71,7 +71,7 @@ export const GroupsListPanel = (props) => {
     const favoriteFlagClickHandler = (e, groupName) => {
         e.stopPropagation()
         toggleGroupsFavoriteFlag(groupName)
-        closeSnackbars(null)
+        closeSnackbars()
     }
 
     return (
@@ -124,7 +124,7 @@ export const GroupsListPanel = (props) => {
                     </PullToRefresh>
                 }
                 { toggleGroupFavoriteFlagSnackbar }
-                { refreshErrorSnackbar }
+                { refreshGroupsErrorSnackbar }
             </Group>
         </>
     )

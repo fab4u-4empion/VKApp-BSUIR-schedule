@@ -1,7 +1,10 @@
 import { Icon16Dropdown, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline } from '@vkontakte/icons'
 import { Avatar, Cell, Group, List, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder } from '@vkontakte/vkui'
+import { useContextProvider } from '../../context/context'
 
 export const TeacherSchedulePanel = (props) => {
+    const { toggleTeachreFavoriteFlagSnackbar } = useContextProvider()
+
     return (
         <>
             <PanelHeader
@@ -49,7 +52,7 @@ export const TeacherSchedulePanel = (props) => {
                 >
                     Расписание преподавателя {props.teacher.fullName}
                 </Placeholder>
-                { props.snackbar }
+                {toggleTeachreFavoriteFlagSnackbar }
             </Group>
         </>
     )

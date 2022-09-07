@@ -20,6 +20,7 @@ import { useContextProvider } from "./context/context";
 import { GroupSchedulePanel } from "./components/panels/groupSchedulePanel";
 import { TeacherSchedulePanel } from "./components/panels/teacherSchedulePanel";
 import { GroupsListPanel } from "./components/panels/groupsListPanel";
+import { TeachersListPanel } from "./components/panels/teachersListPanel";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -47,7 +48,7 @@ const App = () => {
 	}, [])
 
 	const onStoryChange = (e) => {
-		closeSnackbars(null)
+		closeSnackbars()
 		history.pushState({
 			activeStory: e.currentTarget.dataset.story,
 			searchValue: "",
@@ -65,7 +66,7 @@ const App = () => {
 	} 
 
 	const popstateHandler = () => {
-		closeSnackbars(null)
+		closeSnackbars()
 		if (history.state) {
 			setGroupContextMenuOpened(history.state.groups_contextOpened)
 			setTeacherContextMenuOpened(history.state.teachers_contextOpened)
@@ -78,7 +79,7 @@ const App = () => {
 	}
 
 	const groupSelectHandler = (e) => {
-		closeSnackbars(null)
+		closeSnackbars()
 		if (activeStory === "groups") {
 			history.pushState({
 				activeStory: "groups",
@@ -105,6 +106,7 @@ const App = () => {
 	}
 
 	const teacherSelectHandler = (id) => {
+		closeSnackbars()
 		if (activeStory === "teachers") {
 			history.pushState({
 				activeStory: "teachers",
@@ -317,19 +319,18 @@ const App = () => {
 					</View>
 					<View id="teachers" activePanel={teachersActivePanel}>
 						<Panel id="teachers-list">
-							<PanelHeader>Преподаватели</PanelHeader>
-							{/* <TeachersList onTeacherSelect={teacherSelectHandler}/>
-							{ snackbar } */}
+							<TeachersListPanel
+								onTeacherSelect={teacherSelectHandler}
+							/>
 						</Panel>
 						<Panel id="teacher-schedule">
-							{/* <TeacherSchedulePanel
+							<TeacherSchedulePanel
 								teacherContextMenuOpened={teacherContextMenuOpened}
 								onToggleTeacherContextMenu={toggleTeacherContextMenu}
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
-								snackbar={snackbar}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
-							/> */}
+							/>
 						</Panel>
 					</View>
 				</Epic>

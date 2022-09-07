@@ -13,24 +13,56 @@ export const useContextProvider = () => {
 export const СontextProvider = ({ children }) => {
     const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
     const [favoriteTeachers, setFavoritesTeachers] = useState(JSON.parse(sessionStorage.getItem("teachersFavorite")))
-    const [refreshErrorSnackbar, setRefreshErrorSnackbar] = useState(null)
+
+    const [refreshGroupsErrorSnackbar, setRefreshGroupsErrorSnackbar] = useState(null)
+    const [refreshTeachersErrorSnackbar, setRefreshTeachersErrorSnackbar] = useState(null)
+
     const [toggleGroupFavoriteFlagSnackbar, setToggleGroupFavoriteFlagSnackbar] = useState(null)
+    const [toggleTeachreFavoriteFlagSnackbar, setToggleTeacherFavoriteFlagSnackbar] = useState(null)
+
     const [groups, setGroups] = useLocalStorage(null, "groups")
-    const [controller] = useState(new AbortController())
+    const [teachers, setTeachers] = useLocalStorage(null, "teachers")
+
+    const [loadGroupsController] = useState(new AbortController())
+    const [loadTeachersController] = useState(new AbortController())
+
     const [errorLoadingGroupList, setErrorLoadingGroupList] = useState(false)
+    const [errorLoadingTeachersList, setErrorLoadingTeachersList] = useState(false)
+
     const [fetchingGroups, setFetchingGroups] = useState(false)
+    const [fetchingTeachers, setFetchingTeachers] = useState(false)
+
     
     useEffect(() => {
         if (!groups) {
             axios
                 .get("https://iis.bsuir.by/api/v1/student-groups", {
-                    signal: controller.signal
+                    signal: loadGroupsController.signal
                 })
                 .then(response => {
                     setGroups(response.data)
                 })
                 .catch(() => {
                     setErrorLoadingGroupList(true)
+                })
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!teachers) {
+            axios
+                .get("https://iis.bsuir.by/api/v1/employees/all", {
+                    signal: loadTeachersController.signal
+                })
+                .then(response => {
+                    const data = response.data.map(e => {
+                        e.fullName = e.lastName + " " + e.firstName + " " + e.middleName
+                        return e
+                    })
+                    setTeachers(data)
+                })
+                .catch(() => {
+                    setErrorLoadingTeachersList(true)
                 })
         }
     }, [])
@@ -46,16 +78,28 @@ export const СontextProvider = ({ children }) => {
             })
             .catch(() => {
                 setFetchingGroups(false)
-                setRefreshErrorSnackbar(<ErrorSnackbar message={"Не удалось обновить список групп"} setSnackbar={setRefreshErrorSnackbar} />)
+                setRefreshGroupsErrorSnackbar(<ErrorSnackbar message={"Не удалось обновить список групп"} setSnackbar={setRefreshGroupsErrorSnackbar} />)
             })
     }
 
-    useEffect(() => {
-        return function () {
-            controller.abort()
-            fetchingGroupController.abort()
-        }
-    }, [])
+    const onTeachersRefresh = () => {
+        setFetchingTeachers(true)
+        axios
+            .get("https://iis.bsuir.by/api/v1/employees/all")
+            .then(response => {
+                const data = response.data.map(e => {
+                    e.fullName = e.lastName + " " + e.firstName + " " + e.middleName
+                    return e
+                })
+                setTeachers(data)
+                setErrorLoadingTeachersList(false)
+                setFetchingTeachers(false)
+            })
+            .catch(() => {
+                setFetchingTeachers(false)
+                setRefreshTeachersErrorSnackbar(<ErrorSnackbar message={"Не удалось обновить список преподавателей"} setSnackbar={setRefreshTeachersErrorSnackbar} />)
+            })
+    }
 
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
@@ -93,14 +137,16 @@ export const СontextProvider = ({ children }) => {
             .then(() => {
                 setFavoritesTeachers(favoriteTeachersTemp)
             })
-            // .catch(() => {
-            //     setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar} />)
-            // })
+            .catch(() => {
+                setToggleTeacherFavoriteFlagSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setToggleTeacherFavoriteFlagSnackbar} />)
+            })
     }
 
     const closeSnackbars = () => {
-        setRefreshErrorSnackbar(null)
+        setRefreshGroupsErrorSnackbar(null)
         setToggleGroupFavoriteFlagSnackbar(null)
+        setToggleTeacherFavoriteFlagSnackbar(null)
+        setRefreshTeachersErrorSnackbar(null)
     }
 
     return (
@@ -108,13 +154,19 @@ export const СontextProvider = ({ children }) => {
             favoriteGroups,
             favoriteTeachers,
             groups,
-            errorLoadingGroupList: errorLoadingGroupList,
+            teachers,
+            errorLoadingGroupList,
+            errorLoadingTeachersList,
             fetchingGroups,
+            fetchingTeachers,
             toggleGroupsFavoriteFlag,
             toggleTeachersFavoriteFlag,
             onGroupRefresh,
+            onTeachersRefresh,
             toggleGroupFavoriteFlagSnackbar,
-            refreshErrorSnackbar,
+            toggleTeachreFavoriteFlagSnackbar,
+            refreshGroupsErrorSnackbar,
+            refreshTeachersErrorSnackbar,
             closeSnackbars
         }}>
             { children }
