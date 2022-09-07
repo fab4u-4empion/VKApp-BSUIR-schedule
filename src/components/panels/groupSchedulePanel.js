@@ -1,7 +1,10 @@
 import { Icon16Dropdown, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from '@vkontakte/icons'
 import {Cell, Group, List, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder} from '@vkontakte/vkui'
+import { useContextProvider } from '../../context/context'
 
 export const GroupSchedulePanel = (props) => {
+    const { toggleGroupFavoriteFlagSnackbar } = useContextProvider()
+
     return (
         <>
             <PanelHeader
@@ -47,7 +50,7 @@ export const GroupSchedulePanel = (props) => {
                 >
                     Расписание группы {props.groupName}
                 </Placeholder>
-                { props.snackbar }
+                { toggleGroupFavoriteFlagSnackbar }
             </Group>
         </>
     )

@@ -13,10 +13,12 @@ export const useContextProvider = () => {
 export const СontextProvider = ({ children }) => {
     const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
     const [favoriteTeachers, setFavoritesTeachers] = useState(JSON.parse(sessionStorage.getItem("teachersFavorite")))
-    const [snackbar, setSnackbar] = useState(null)
+    const [refreshErrorSnackbar, setRefreshErrorSnackbar] = useState(null)
+    const [toggleGroupFavoriteFlagSnackbar, setToggleGroupFavoriteFlagSnackbar] = useState(null)
     const [groups, setGroups] = useLocalStorage(null, "groups")
     const [controller] = useState(new AbortController())
     const [errorLoadingGroupList, setErrorLoadingGroupList] = useState(false)
+    const [fetchingGroups, setFetchingGroups] = useState(false)
     
     useEffect(() => {
         if (!groups) {
@@ -33,9 +35,25 @@ export const СontextProvider = ({ children }) => {
         }
     }, [])
 
+    const onGroupRefresh = () => {
+        setFetchingGroups(true)
+        axios
+            .get("https://iis.bsuir.by/api/v1/student-groups")
+            .then(response => {
+                setGroups(response.data)
+                setErrorLoadingGroupList(false)
+                setFetchingGroups(false)
+            })
+            .catch(() => {
+                setFetchingGroups(false)
+                setRefreshErrorSnackbar(<ErrorSnackbar message={"Не удалось обновить список групп"} setSnackbar={setRefreshErrorSnackbar} />)
+            })
+    }
+
     useEffect(() => {
         return function () {
             controller.abort()
+            fetchingGroupController.abort()
         }
     }, [])
 
@@ -56,7 +74,7 @@ export const СontextProvider = ({ children }) => {
                 setFavoritesGroups(favoriteGroupsTemp)
             })
             .catch(() => {
-                setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar}/>)
+                setToggleGroupFavoriteFlagSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setToggleGroupFavoriteFlagSnackbar}/>)
             })
     }
 
@@ -75,20 +93,29 @@ export const СontextProvider = ({ children }) => {
             .then(() => {
                 setFavoritesTeachers(favoriteTeachersTemp)
             })
-            .catch(() => {
-                setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar} />)
-            })
+            // .catch(() => {
+            //     setSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setSnackbar} />)
+            // })
+    }
+
+    const closeSnackbars = () => {
+        setRefreshErrorSnackbar(null)
+        setToggleGroupFavoriteFlagSnackbar(null)
     }
 
     return (
         <Context.Provider value={{
-            favoriteGroups: favoriteGroups,
-            favoriteTeachers: favoriteTeachers,
-            errorSnackbar: snackbar,
-            groups: groups,
+            favoriteGroups,
+            favoriteTeachers,
+            groups,
             errorLoadingGroupList: errorLoadingGroupList,
+            fetchingGroups,
             toggleGroupsFavoriteFlag,
-            toggleTeachersFavoriteFlag
+            toggleTeachersFavoriteFlag,
+            onGroupRefresh,
+            toggleGroupFavoriteFlagSnackbar,
+            refreshErrorSnackbar,
+            closeSnackbars
         }}>
             { children }
         </Context.Provider>

@@ -1,21 +1,25 @@
+//Search in an array of objects by a given field
+
 import { useEffect, useState } from "react"
 
-export const useSearch = (arr, param, initSearchValue) => {
+export const useSearch = (array, param, initSearchValue) => {
     const [value, setValue] = useState(initSearchValue)
     const [result, setResult] = useState(
-        arr ? arr.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1) : []
+        array ? array.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1) : []
     )
 
     const getResult = (value) => {
-        setResult(arr.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1))
+        setResult(
+            array ? array.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1) : []
+        )
         setValue(value)
     }
 
     useEffect(() => {
         setResult(
-            arr ? arr.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1) : []
+            array ? array.filter(e => e[param].toLowerCase().indexOf(value.toLowerCase()) > -1) : []
         )
-    }, [arr])
+    }, [array])
 
     return [value, result, getResult]
 }

@@ -28,7 +28,7 @@ const App = () => {
 	const isDesktop = viewWidth >= ViewWidth.TABLET;
     const hasHeader = platform !== VKCOM;
 
-	const [activeStory, setActiveStory] = useState("groups")
+	const [activeStory, setActiveStory] = useState("favorites")
 	const [groupsActivePanel, setGroupsActivePanel] = useState("groups-list")
 	const [teachersActivePanel, setTeachersActivePanel] = useState("teachers-list")
 	const [favoritesActivePanel, setFavoritesActivePanel] = useState("favorites-list")
@@ -36,13 +36,8 @@ const App = () => {
 	const [teacher, setTeacher] = useState({})
 	const [groupContextMenuOpened, setGroupContextMenuOpened] = useState(false)
 	const [teacherContextMenuOpened, setTeacherContextMenuOpened] = useState(false)
-	const [snackbar, setSnackbar] = useState(null)
 
-	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, errorSnackbar } = useContextProvider()
-
-	useEffect(() => {
-		setSnackbar(errorSnackbar)
-	}, [errorSnackbar])
+	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, closeSnackbars } = useContextProvider()
 
 	useEffect(() => {
 		window.addEventListener("popstate", popstateHandler)
@@ -52,7 +47,7 @@ const App = () => {
 	}, [])
 
 	const onStoryChange = (e) => {
-		setSnackbar(null)
+		closeSnackbars(null)
 		history.pushState({
 			activeStory: e.currentTarget.dataset.story,
 			searchValue: "",
@@ -70,6 +65,7 @@ const App = () => {
 	} 
 
 	const popstateHandler = () => {
+		closeSnackbars(null)
 		if (history.state) {
 			setGroupContextMenuOpened(history.state.groups_contextOpened)
 			setTeacherContextMenuOpened(history.state.teachers_contextOpened)
@@ -82,6 +78,7 @@ const App = () => {
 	}
 
 	const groupSelectHandler = (e) => {
+		closeSnackbars(null)
 		if (activeStory === "groups") {
 			history.pushState({
 				activeStory: "groups",
@@ -309,14 +306,13 @@ const App = () => {
 							/>
 						</Panel>
 						<Panel id="group-schedule">
-							{/* <GroupSchedulePanel
+							<GroupSchedulePanel
 								groupContextMenuOpened={groupContextMenuOpened}
 								onToggleGroupContextMenu={toggleGroupContextMenu}
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
-								snackbar={snackbar}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
-							/> */}
+							/>
 						</Panel>
 					</View>
 					<View id="teachers" activePanel={teachersActivePanel}>

@@ -1,16 +1,25 @@
 import { Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, Search, SimpleCell } from "@vkontakte/vkui"
-import { useEffect, useState } from "react"
+import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, PullToRefresh, Search, SimpleCel, SimpleCell } from "@vkontakte/vkui"
+import { useEffect } from "react"
 import { useContextProvider } from "../../context/context" 
+import { usePagination } from "../../hooks/usePagination"
 import { useSearch } from "../../hooks/useSearch"
 
-export const GroupsListPanel = () => {
-    const { groups, errorLoadingGroupList } = useContextProvider()
+export const GroupsListPanel = (props) => {
+    const { 
+        groups, 
+        errorLoadingGroupList, 
+        favoriteGroups, 
+        toggleGroupsFavoriteFlag,  
+        closeSnackbars,
+        fetchingGroups,
+        onGroupRefresh,
+        toggleGroupFavoriteFlagSnackbar,
+        refreshErrorSnackbar
+    } = useContextProvider()
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const [endOfPage, setEndOfPage] = useState(false)
-    const [groupsRender, setGroupsRender] = useState([])
     const [search, groupsSearchResult, setSearchValue] = useSearch(groups, "name", history.state.searchValue)
+    const [groupsRender] = usePagination(groupsSearchResult, 1, 30)
 
     useEffect(() => {
         window.scrollTo(window.scrollX, 0)
@@ -20,39 +29,11 @@ export const GroupsListPanel = () => {
     }, [search])
 
     useEffect(() => {
-        if (endOfPage && groupsSearchResult.length > 30) {
-            setGroupsRender([...groupsRender, ...groupsSearchResult.slice(currentPage * 30, currentPage * 30 + 30)])
-            setCurrentPage(currentPage => currentPage + 1)
-            setEndOfPage(false)
-        } else {
-            setEndOfPage(false)
-        }
-    }, [endOfPage])
-
-    useEffect(() => {
-        setCurrentPage(1)
-        setGroupsRender(groupsSearchResult.slice(0, 30))
-    }, [groupsSearchResult])
-
-    useEffect(() => {
-        window.addEventListener("scroll", scrollHandler)
-        return function () {
-            window.removeEventListener("scroll", scrollHandler)
-        }
-    }, [])
-
-    useEffect(() => {
         window.addEventListener("popstate", popstateHandler)
         return function () {
             window.removeEventListener("popstate", popstateHandler)
         }
     }, [])
-
-    const scrollHandler = (e) => {
-        if (e.target.documentElement.scrollHeight - (e.target.documentElement.scrollTop + window.innerHeight) < 100) {
-            setEndOfPage(true)
-        }
-    }
 
     const popstateHandler = () => {
         if (history.state) {
@@ -83,13 +64,23 @@ export const GroupsListPanel = () => {
         setSearchValue(e.target.value)
     }
 
+    const openGroupScheduleHandler = (e) => {
+        props.onGroupSelect(e)
+    }
+
+    const favoriteFlagClickHandler = (e, groupName) => {
+        e.stopPropagation()
+        toggleGroupsFavoriteFlag(groupName)
+        closeSnackbars(null)
+    }
+
     return (
         <>
             <PanelHeader>Группы</PanelHeader>
 
             <FixedLayout vertical="top" filled="true">
                 <Search
-                    readOnly={!groups}
+                    readOnly={!groups || fetchingGroups}
                     value={search}
                     onChange={e => false ? () => { } : changeHandler(e)}
                     after="Отмена"
@@ -98,21 +89,30 @@ export const GroupsListPanel = () => {
             <Group style={{ paddingTop: 40 }}>
                 {!groups && !errorLoadingGroupList && <PanelSpinner />}
                 {errorLoadingGroupList &&
-                    <Placeholder>Не удалось загрузить список групп</Placeholder>
+                    <PullToRefresh
+                        onRefresh={onGroupRefresh}
+                        isFetching={fetchingGroups}
+                        style={{ minHeight: 350 }}
+                    >
+                        <Placeholder>Не удалось загрузить список групп</Placeholder>
+                    </PullToRefresh>
                 }
                 {groups && !errorLoadingGroupList &&
-                    <>
+                    <PullToRefresh
+                        onRefresh={onGroupRefresh}
+                        isFetching={fetchingGroups}
+                        style={{ minHeight: 350 }}
+                    >
                         <List>
                             {groupsSearchResult.length > 0 &&
                                 groupsRender.map((group) => (
                                     <SimpleCell
-                                        //onClick={() => { openGroupScheduleHandler(group.name) }}
+                                        onClick={() => { openGroupScheduleHandler(group.name) }}
                                         key={group.id}
                                         expandable={true}
                                         before={
-                                            <IconButton /*onClick={e => favoriteFlagClickHandler(e, group.name)}*/>
-                                                {false && <Icon28Favorite fill="var(--accent)" />}
-                                                {true && <Icon28FavoriteOutline fill="var(--accent)" />}
+                                            <IconButton onClick={e => favoriteFlagClickHandler(e, group.name)}>
+                                                {favoriteGroups.includes(group.name) ? <Icon28Favorite fill="var(--accent)" /> : <Icon28FavoriteOutline fill="var(--accent)" />}
                                             </IconButton>
                                         }
                                     >
@@ -121,8 +121,10 @@ export const GroupsListPanel = () => {
                                 ))}
                         </List>
                         {groupsSearchResult.length === 0 && <Footer>Ничего не найдено</Footer>}
-                    </>
+                    </PullToRefresh>
                 }
+                { toggleGroupFavoriteFlagSnackbar }
+                { refreshErrorSnackbar }
             </Group>
         </>
     )
