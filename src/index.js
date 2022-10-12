@@ -7,7 +7,8 @@ import {
 	AppRoot,
     ScreenSpinner,
     usePlatform,
-    VKCOM
+    VKCOM,
+    useAppearance
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
@@ -19,9 +20,10 @@ const App = lazy(() => import('./App'))
 
 const Index = () => {
     const platform = usePlatform()
+    const appearance = useAppearance()
     return (
         <СontextProvider>
-            <ConfigProvider platform={platform === VKCOM ? "android" : platform}>
+            <ConfigProvider appearance={useAppearance} platform={platform === VKCOM ? "android" : platform}>
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>
@@ -50,13 +52,7 @@ try {
             if (e.keys[1].value) {
                 sessionStorage.setItem("teachersFavorite", e.keys[1].value)
             }
-            bridge.send("VKWebAppInit");
 
-            bridge.subscribe((e) => {
-                if (e.detail.type === "VKWebAppUpdateConfig") {
-                    document.body.setAttribute("scheme", e.detail.data.scheme);
-                }
-            });
             history.pushState({
                 activeStory: "favorites",
                 searchValue: "",
@@ -64,6 +60,9 @@ try {
                 favorites_activePanel: "favorites-list",
                 body_overflow: "visible"
             }, "")
+
+            bridge.send("VKWebAppInit");
+
             ReactDOM.render(<Index />, document.getElementById("root"));
         })
     // history.pushState({

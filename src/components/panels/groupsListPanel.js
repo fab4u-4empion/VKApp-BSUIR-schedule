@@ -1,5 +1,5 @@
 import { Icon28Favorite, Icon28FavoriteOutline } from "@vkontakte/icons"
-import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, PullToRefresh, Search, SimpleCell } from "@vkontakte/vkui"
+import { FixedLayout, Footer, Group, IconButton, List, PanelHeader, PanelSpinner, Placeholder, PullToRefresh, Search, SimpleCell, Spinner } from "@vkontakte/vkui"
 import { useEffect } from "react"
 import { useContextProvider } from "../../context/context" 
 import { usePagination } from "../../hooks/usePagination"
@@ -86,8 +86,8 @@ export const GroupsListPanel = (props) => {
                     after="Отмена"
                 />
             </FixedLayout>
-            <Group style={{ paddingTop: 40 }}>
-                {!groups && !errorLoadingGroupList && <PanelSpinner />}
+            <Group style={{ paddingTop: 50 }}>
+                {!groups && !errorLoadingGroupList && <Spinner />}
                 {errorLoadingGroupList &&
                     <PullToRefresh
                         onRefresh={onGroupRefresh}

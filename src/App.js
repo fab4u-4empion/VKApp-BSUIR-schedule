@@ -21,6 +21,7 @@ import { GroupSchedulePanel } from "./components/panels/groupSchedulePanel";
 import { TeacherSchedulePanel } from "./components/panels/teacherSchedulePanel";
 import { GroupsListPanel } from "./components/panels/groupsListPanel";
 import { TeachersListPanel } from "./components/panels/teachersListPanel";
+import { FavoritesListPanel } from "./components/panels/favoritesListPanel";
 
 const App = () => {
 	const { viewWidth } = useAdaptivity()
@@ -273,32 +274,28 @@ const App = () => {
 				>	
 					<View id="favorites" activePanel={favoritesActivePanel}>
 						<Panel id="favorites-list">
-							<PanelHeader>Избранное</PanelHeader>
-							{/* <FavoritesList
+							<FavoritesListPanel
 								onGroupSelect={groupSelectHandler}
 								onTeacherSelect={teacherSelectHandler}
 							/>
-							{ snackbar } */}
 						</Panel>
 						<Panel id="group-schedule">
-							{/* <GroupSchedulePanel
+							<GroupSchedulePanel
 								groupContextMenuOpened={groupContextMenuOpened}
 								onToggleGroupContextMenu={toggleGroupContextMenu}
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
-								snackbar={snackbar}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
-							/> */}
+							/>
 						</Panel>
 						<Panel id="teacher-schedule">
-							{/* <TeacherSchedulePanel
+							<TeacherSchedulePanel
 								teacherContextMenuOpened={teacherContextMenuOpened}
 								onToggleTeacherContextMenu={toggleTeacherContextMenu}
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
-								snackbar={snackbar}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
-							/> */}
+							/>
 						</Panel>
 					</View>
 					<View id="groups" activePanel={groupsActivePanel}>

@@ -49,6 +49,7 @@ export const СontextProvider = ({ children }) => {
     }, [])
 
     useEffect(() => {
+        setErrorLoadingTeachersList(true)
         if (!teachers) {
             axios
                 .get("https://iis.bsuir.by/api/v1/employees/all", {
