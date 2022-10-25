@@ -17,7 +17,8 @@ export const FavoritesListPanel = (props) => {
         toggleTeachreFavoriteFlagSnackbar,
         toggleTeachersFavoriteFlag,
         errorLoadingGroupList,
-        errorLoadingTeachersList
+        errorLoadingTeachersList,
+        onReload
     } = useContextProvider()
 
     useEffect(() => {
@@ -49,7 +50,7 @@ export const FavoritesListPanel = (props) => {
     return (
         <>
             <PanelHeader>Избранное</PanelHeader>
-            {(!groups || !teachers) && (!errorLoadingGroupList || !errorLoadingTeachersList) &&
+            {(!groups || !teachers) && !errorLoadingGroupList && !errorLoadingTeachersList &&
                 <Group style={{ paddingTop: 50 }}>
                     <Spinner />
                 </Group>
@@ -58,7 +59,7 @@ export const FavoritesListPanel = (props) => {
                 <Group style={{ paddingTop: 50}}>
                     <Placeholder
                         action={
-                            <Button><Icon24Replay/></Button>
+                            <Button onClick={onReload} before={<Icon24Replay />} mode="outline">Обновить</Button>
                         }
                     >Не удалось загрузить список групп или список преподавателей</Placeholder>
                 </Group>

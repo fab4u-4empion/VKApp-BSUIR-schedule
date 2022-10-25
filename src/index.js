@@ -23,7 +23,7 @@ const Index = () => {
     const appearance = useAppearance()
     return (
         <СontextProvider>
-            <ConfigProvider appearance={useAppearance} platform={platform === VKCOM ? "android" : platform}>
+            <ConfigProvider appearance={appearance} platform={platform === VKCOM ? "android" : platform}>
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>

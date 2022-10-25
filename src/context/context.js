@@ -32,6 +32,7 @@ export const СontextProvider = ({ children }) => {
     const [fetchingGroups, setFetchingGroups] = useState(false)
     const [fetchingTeachers, setFetchingTeachers] = useState(false)
 
+    const [reload, setReload] = useState(false)
     
     useEffect(() => {
         if (!groups) {
@@ -46,10 +47,9 @@ export const СontextProvider = ({ children }) => {
                     setErrorLoadingGroupList(true)
                 })
         }
-    }, [])
+    }, [,reload])
 
     useEffect(() => {
-        setErrorLoadingTeachersList(true)
         if (!teachers) {
             axios
                 .get("https://iis.bsuir.by/api/v1/employees/all", {
@@ -66,7 +66,13 @@ export const СontextProvider = ({ children }) => {
                     setErrorLoadingTeachersList(true)
                 })
         }
-    }, [])
+    }, [,reload])
+
+    const onReload = () => {
+        setErrorLoadingTeachersList(false)
+        setErrorLoadingGroupList(false)
+        setReload(!reload)
+    }
 
     const onGroupRefresh = () => {
         setFetchingGroups(true)
@@ -168,7 +174,8 @@ export const СontextProvider = ({ children }) => {
             toggleTeachreFavoriteFlagSnackbar,
             refreshGroupsErrorSnackbar,
             refreshTeachersErrorSnackbar,
-            closeSnackbars
+            closeSnackbars,
+            onReload
         }}>
             { children }
         </Context.Provider>

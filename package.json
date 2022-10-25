@@ -25,10 +25,10 @@
     "@types/node": "^17.0.45",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
-    "@vkontakte/icons": "^1.194.0",
+    "@vkontakte/icons": "^1.197.0",
     "@vkontakte/vk-bridge": "^2.7.0",
     "@vkontakte/vk-miniapps-deploy": "0.0.25",
-    "@vkontakte/vkui": "^4.37.4",
+    "@vkontakte/vkui": "^4.38.0",
     "babel-eslint": "^10.1.0",
     "chalk": "^4.1.2",
     "eruda": "^2.5.0",
@@ -37,7 +37,9 @@
     "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "typescript": "^4.8.3"
+    "react-virtualized-auto-sizer": "^1.0.7",
+    "react-window": "^1.8.7",
+    "typescript": "^4.8.4"
   },
   "browserslist": {
     "production": [
