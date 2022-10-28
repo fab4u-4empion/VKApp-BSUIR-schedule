@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack://src/styles/styles.css"],"names":[],"mappings":"AAAA,gCACI,mBACJ,CAEA,qBACI,iBACJ","file":"main.36a11760.chunk.css","sourcesContent":[".FixedLayout.PanelHeaderContext {\r\n    z-index: 4!important;\r\n}\r\n\r\n.vkuiTabsItem__label {\r\n    text-align: center;\r\n}"]}
