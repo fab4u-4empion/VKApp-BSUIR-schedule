@@ -1,14 +1,16 @@
 import { Icon16Dropdown, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {Cell, FixedLayout, Group, InitialsAvatar, List, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, Spinner} from '@vkontakte/vkui'
+import {Card, CardGrid, Cell, FixedLayout, Group, Header, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, Spinner} from '@vkontakte/vkui'
 import axios from 'axios'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useContextProvider } from '../../context/context'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
+import { CalendarTabBar } from '../controls/CalendarTabBar'
 
 export const GroupSchedulePanel = (props) => {
     const { toggleGroupFavoriteFlagSnackbar } = useContextProvider()
 
     const [schedule, setSchedule] = useLocalStorage(null, `schedule_${props.groupName}`)
+    const [dayInfo, setDayInfo] = useState(null)
 
     useEffect(() => {
         if (!schedule) {
@@ -18,8 +20,12 @@ export const GroupSchedulePanel = (props) => {
         }
     }, [])
 
+    const date = new Date(Date.now())
+    console.log(date.toLocaleString("ru-RU", {day: 'numeric', month:'long', weekday: 'long'}));
+
     return (
         <>
+        {console.log(dayInfo)}
             <PanelHeader
                 before={
                     <PanelHeaderBack
@@ -75,11 +81,36 @@ export const GroupSchedulePanel = (props) => {
                         >
                             {schedule.studentGroupDto.specialityName}
                         </RichCell>
-                        
+                        <CalendarTabBar
+                            onSelect={setDayInfo}
+                        />
                         <Separator wide />
                     </FixedLayout>
-                    <Group style={{ paddingTop: 60, height: "1000px" }}>
-                        wefowoefk
+                    <Group 
+                        style={{ paddingTop: 110 }}
+                        header={dayInfo &&
+                            <Header
+                                subtitle={`${dayInfo.week}-ая учебная неделя`}
+                                className="ScheduleHeader"
+                            >
+                                {dayInfo.date.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' })}
+                            </Header>
+                        }
+                    >
+                        <CardGrid size='l'>
+                            <Card mode='outline'>
+                                <div style={{ height: 96 }} />
+                            </Card>
+                            <Card mode='outline'>
+                                <div style={{ height: 96 }} />
+                            </Card>
+                            <Card mode='outline'>
+                                <div style={{ height: 96 }} />
+                            </Card>
+                            <Card mode='outline'>
+                                <div style={{ height: 96 }} />
+                            </Card>
+                        </CardGrid>
                         {toggleGroupFavoriteFlagSnackbar}
                     </Group>
                 </>

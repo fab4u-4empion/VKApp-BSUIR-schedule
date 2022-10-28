@@ -139,6 +139,7 @@ export const СontextProvider = ({ children }) => {
             favoriteTeachersTemp.push(teacherID)
             errorMessage = 'Не удалось добавить преподавателя в "Избранное"' 
         }
+
         bridge
             .send("VKWebAppStorageSet", { "key": "teachersFavorite", "value": JSON.stringify(favoriteTeachersTemp) })
             .then(() => {
