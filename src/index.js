@@ -15,6 +15,7 @@ import "./styles/styles.css"
 import ErrorBoundary from "./components/error_panels/errorBoundary";
 import CookiePlaceholder from "./components/error_panels/cookiePlaceholder";
 import { СontextProvider } from './context/context'
+import axios from "axios";
 
 const App = lazy(() => import('./App'))
 
@@ -63,7 +64,12 @@ try {
 
             bridge.send("VKWebAppInit");
 
-            ReactDOM.render(<Index />, document.getElementById("root"));
+            axios
+                .get("https://iis.bsuir.by/api/v1/schedule/current-week")
+                .then(response => {
+                    sessionStorage.setItem("week", JSON.stringify(response.data))
+                    ReactDOM.render(<Index />, document.getElementById("root"));
+                })
         })
     // history.pushState({
     //     activeStory: "favorites",

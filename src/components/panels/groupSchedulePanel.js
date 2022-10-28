@@ -1,9 +1,22 @@
 import { Icon16Dropdown, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {Cell, Group, List, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder} from '@vkontakte/vkui'
+import {Cell, FixedLayout, Group, InitialsAvatar, List, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, Spinner} from '@vkontakte/vkui'
+import axios from 'axios'
+import { useEffect } from 'react'
 import { useContextProvider } from '../../context/context'
+import { useLocalStorage } from '../../hooks/useLocalStorage'
 
 export const GroupSchedulePanel = (props) => {
     const { toggleGroupFavoriteFlagSnackbar } = useContextProvider()
+
+    const [schedule, setSchedule] = useLocalStorage(null, `schedule_${props.groupName}`)
+
+    useEffect(() => {
+        if (!schedule) {
+            axios
+                .get(`https://iis.bsuir.by/api/v1/schedule?studentGroup=${props.groupName}`)
+                .then(response => setSchedule(response.data))
+        }
+    }, [])
 
     return (
         <>
@@ -44,14 +57,33 @@ export const GroupSchedulePanel = (props) => {
                     </Cell>
                 </List>
             </PanelHeaderContext>
-            <Group style={{ height: "1000px" }}>
-                <Placeholder
-                    icon={<Icon28UsersOutline width={56} height={56} />}
-                >
-                    Расписание группы {props.groupName}
-                </Placeholder>
-                { toggleGroupFavoriteFlagSnackbar }
-            </Group>
+            {!schedule && 
+                <Group style={{paddingTop: 50}}>
+                    <Spinner />
+                </Group>
+            }
+            {schedule && 
+                <>
+                    <FixedLayout
+                        vertical='top'
+                        filled
+                    >
+                        <RichCell
+                            multiline
+                            disabled={true}
+                            caption={`${schedule.studentGroupDto.facultyAbbrev}, ${schedule.studentGroupDto.course} курс`}
+                        >
+                            {schedule.studentGroupDto.specialityName}
+                        </RichCell>
+                        
+                        <Separator wide />
+                    </FixedLayout>
+                    <Group style={{ paddingTop: 60, height: "1000px" }}>
+                        wefowoefk
+                        {toggleGroupFavoriteFlagSnackbar}
+                    </Group>
+                </>
+            }
         </>
     )
 }

@@ -111,6 +111,7 @@ export const FavoritesListPanel = (props) => {
                         }
                         )}  
                     </List>
+                    { toggleGroupFavoriteFlagSnackbar }
                     { toggleTeachreFavoriteFlagSnackbar }
                 </Group>
             }
