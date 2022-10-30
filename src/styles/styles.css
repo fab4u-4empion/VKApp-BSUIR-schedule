@@ -10,3 +10,50 @@
     justify-content: center;
     text-align: center;
 }
+
+.ScheduleCardInner {
+    padding: 10px;
+    display: flex;
+    column-gap: 10px;
+}
+
+.ScheduleCardInner__Separator {
+    width: 5px;
+    border-radius: 10px;
+    background-color: gray;
+}
+
+.ScheduleCardInner__Separator.red {
+    background-color: var(--vkui--color_background_negative);
+}
+
+.ScheduleCardInner__Separator.green {
+    background-color: var(--vkui--color_background_positive);
+}
+
+.ScheduleCardInner__Separator.yellow {
+    background-color: var(--vkui--color_accent_orange);
+}
+
+.ScheduleCardInner__Time {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.OutlineText {
+    border: 1px solid;
+    border-color: var(--text_secondary);
+    border-radius: 8px;
+    color: var(--text_secondary);
+    font-size: .75em;
+    padding: 1px 7px;
+
+}
+
+.LessonInfo {
+    display: flex;
+    margin: 3px 0px;
+    column-gap: 7px;
+}

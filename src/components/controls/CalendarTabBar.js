@@ -13,7 +13,7 @@ export const CalendarTabBar = ({onSelect}) => {
             .fill(null)
             .map((e, index) => {
                 const date = new Date(Date.now() + index * 86400000)
-                if (date.getDay() == 1 && index > 0) ++weekNumber % 4 + 1
+                if (date.getDay() == 1 && index > 0) weekNumber = weekNumber % 4 + 1
                 return {
                     date,
                     week: weekNumber
