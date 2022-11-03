@@ -1,8 +1,9 @@
 import { Icon12Circle, Icon16Dropdown, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {Avatar, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
+import {ActionSheet, ActionSheetDefaultIosCloseItem, ActionSheetItem, Avatar, Button, ButtonGroup, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, Link, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useContextProvider } from '../../context/context'
+import { useFirstUpperCase } from '../../hooks/useFirstUpperCase'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { ErrorSnackbar } from '../alerts/errorSnackbar'
 import { CalendarTabBar } from '../controls/CalendarTabBar'
@@ -25,6 +26,8 @@ const lessonNumber = {
     "20:40": 8,
 }
 
+const subGroupText = ["Вся группа", "1 подгруппа", "2 подгруппа",]
+
 export const GroupSchedulePanel = (props) => {
     const { toggleGroupFavoriteFlagSnackbar } = useContextProvider()
 
@@ -33,14 +36,38 @@ export const GroupSchedulePanel = (props) => {
     const [fetching, setFetching] = useState(false)
     const [loadingError, setLoadingError] = useState(false)
     const [snackbar, setSnackbar] = useState(null)
+    const [subGroup, setSubgroup] = useState(0)
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
     const currentSchedule = useMemo(() => {
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота',]
         const daySchedule = schedule?.schedules[days[dayInfo?.date.getDay()]]
-        return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week))
-    }, [dayInfo])
+        return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
+            return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true 
+        })
+    }, [dayInfo, subGroup])
+
+    const actionSheet = useMemo(() => {
+        return (
+            <ActionSheet 
+                onClose={() => props.onOpenPopout(null)}
+                iosCloseItem={<ActionSheetDefaultIosCloseItem />}
+            >
+                {subGroupText.map((text, index) => 
+                    <ActionSheetItem
+                        onChange={() => setSubgroup(index)}
+                        checked={subGroup === index}
+                        autoclose
+                        selectable
+                    >
+                        {text}
+                    </ActionSheetItem>
+                )
+                }
+            </ActionSheet>
+        )
+    }, [subGroup])
 
     useEffect(() => {
         if (!schedule) {
@@ -176,9 +203,13 @@ export const GroupSchedulePanel = (props) => {
                         header={dayInfo &&
                             <Header
                                 subtitle={`${dayInfo.week}-ая учебная неделя`}
-                                className="ScheduleHeader"
+                                aside={
+                                    <Link onClick={() => props.onOpenPopout(actionSheet)} mode="outline" size="s">
+                                        {subGroupText[subGroup]}
+                                    </Link>
+                                }
                             >
-                                {dayInfo.date.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' })}
+                                {useFirstUpperCase(dayInfo.date.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' }))}
                             </Header>
                         }
                     >

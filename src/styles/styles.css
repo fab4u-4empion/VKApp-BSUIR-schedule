@@ -7,8 +7,7 @@
 }
 
 .ScheduleHeader {
-    justify-content: center;
-    text-align: center;
+    align-items: center;
 }
 
 .ScheduleCardInner {
