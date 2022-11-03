@@ -1,5 +1,5 @@
-import { Icon16Dropdown, Icon28Favorite, Icon28FavoriteOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {Card, CardGrid, Cell, FixedLayout, Group, Header, Headline, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, Spinner, Text, Title} from '@vkontakte/vkui'
+import { Icon12Circle, Icon16Dropdown, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
+import {Avatar, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useContextProvider } from '../../context/context'
@@ -14,7 +14,7 @@ const lessonTypes = {
 }
 
 const lessonNumber = {
-    "9:00": 1,
+    "09:00": 1,
     "10:35": 2,
     "12:25": 3,
     "14:00": 4,
@@ -34,7 +34,7 @@ export const GroupSchedulePanel = (props) => {
 
     const currentSchedule = useMemo(() => {
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота',]
-        const daySchedule = schedule.schedules[days[dayInfo?.date.getDay()]]
+        const daySchedule = schedule?.schedules[days[dayInfo?.date.getDay()]]
         return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week))
     }, [dayInfo])
 
@@ -45,6 +45,30 @@ export const GroupSchedulePanel = (props) => {
                 .then(response => setSchedule(response.data))
         }
     }, [])
+
+    const openModal = (lesson) => {
+        const content = {
+            header: lesson.subjectFullName,
+            inner: 
+                <>
+                    <div className="LessonModalInner">
+                        <Avatar
+                            size={90} 
+                            src={lesson?.employees[0]?.photoLink}
+                            className={`${lessonTypes[lesson.lessonTypeAbbrev]}`}
+                            shadow={false}
+                        />
+                        {lesson.employees[0] && <Text style={{ color: "var(--text_secondary)", textAlign: "center" }}>{`${lesson.employees[0].lastName} ${lesson.employees[0]?.firstName} ${lesson.employees[0]?.middleName}`}</Text>}
+                    </div>
+                    {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline/>} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>}
+                    <SimpleCell before={<Icon28ClockOutline />} disabled indicator={`${lesson.startLessonTime} - ${lesson.endLessonTime}`}>Время</SimpleCell>
+                    {lesson.numSubgroup > 0 && <SimpleCell before={<Icon28UsersOutline />} disabled indicator={lesson.numSubgroup}>Подгруппа</SimpleCell>}
+                    <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>
+                </>
+        }
+        console.log(props.onOpenModal);
+        props.onOpenModal(content)
+    }
 
     return (
         <>
@@ -125,6 +149,9 @@ export const GroupSchedulePanel = (props) => {
                                 {currentSchedule.map(e =>
                                     <Card mode='outline'>
                                         <div className='ScheduleCardInner'>
+                                            <IconButton onClick={() => openModal(e)} className='ScheduleCardInfoButton'>
+                                                <Icon24InfoCircleOutline/>
+                                            </IconButton>
                                             <div className='ScheduleCardInner__Time'>
                                                 <Headline 
                                                     style={{ fontSize: ".95em" }} 
@@ -149,7 +176,7 @@ export const GroupSchedulePanel = (props) => {
                                                     {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
                                                 </div>
                                                 {e.employees[0] && <Text style={{ color: "var(--text_secondary)", fontSize: ".9em" }}>{`${e.employees[0].lastName} ${e.employees[0]?.firstName} ${e.employees[0]?.middleName}`}</Text>}
-                                                {e.note && <Text style={{ color: "var(--vkui--color_background_negative)", fontSize: ".9em", marginTop: 5}}>{e.note}</Text>}
+                                                {e.note && <Text style={{ color: "var(--vkui--color_background_negative)", fontSize: ".9em"}}>{e.note}</Text>}
                                             </div>
                                         </div>
                                     </Card>

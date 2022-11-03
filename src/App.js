@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {
 	View,
 	Panel,
@@ -13,7 +13,12 @@ import {
 	Cell,
 	Tabbar,
 	TabbarItem,
-	Epic
+	Epic,
+	ModalRoot,
+	ModalCard,
+	Button,
+	IOS,
+	ANDROID
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import { useContextProvider } from "./context/context";
@@ -38,15 +43,41 @@ const App = () => {
 	const [teacher, setTeacher] = useState({})
 	const [groupContextMenuOpened, setGroupContextMenuOpened] = useState(false)
 	const [teacherContextMenuOpened, setTeacherContextMenuOpened] = useState(false)
+	const [activeModal, setActiveModal] = useState(null)
+	const [modalContent, setModalContent] = useState(null)
 
 	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, closeSnackbars } = useContextProvider()
-
+	
 	useEffect(() => {
 		window.addEventListener("popstate", popstateHandler)
 		return function () {
 			window.removeEventListener("popstate", popstateHandler)
 		}
 	}, [])
+
+	const modals = useMemo(() => {
+		return (
+			<ModalRoot activeModal={activeModal} onClose={() => setActiveModal(null)}>
+				<ModalCard 
+					id="lessonInfo" 
+					onClose={() => setActiveModal(null)}
+					header={modalContent?.header}
+					subheader={modalContent?.subHeader}
+					actions={!isDesktop && platform != IOS &&
+						<Button
+							size="m"
+							mode="primary"
+							onClick={() => setActiveModal(null)}
+						>
+							Ок
+						</Button>
+					}
+				>
+					{modalContent?.inner}
+				</ModalCard>
+			</ModalRoot>
+		)
+	}, [modalContent, activeModal])
 
 	const onStoryChange = (e) => {
 		closeSnackbars()
@@ -171,10 +202,16 @@ const App = () => {
 		toggleTeachersFavoriteFlag(id)
 	}
 
+	const openModal = (content) => {
+		setModalContent(content)
+		setActiveModal("lessonInfo")
+	}
+
 	return (
 		<SplitLayout
 			header={ hasHeader && <PanelHeader separator={false} /> }
 			style={{ justifyContent: "center" }}
+			modal={modals}
 		>
 			{ isDesktop && (
 				<SplitCol fixed width={280} maxWidth={280}>
@@ -286,6 +323,7 @@ const App = () => {
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
+								onOpenModal={openModal}
 							/>
 						</Panel>
 						<Panel id="teacher-schedule">
@@ -311,6 +349,7 @@ const App = () => {
 								onToggleGroupsFavorireFlag={toggleGroupsFavoriteFlagHandler}
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
+								onOpenModal={openModal}
 							/>
 						</Panel>
 					</View>

@@ -28,7 +28,6 @@ export const CalendarTabBar = ({onSelect}) => {
     const selectHandler = (index) => {
         onSelect(daysInfo[index])
         setSelected(index)
-
     }
 
     return (

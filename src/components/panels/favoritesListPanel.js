@@ -64,7 +64,7 @@ export const FavoritesListPanel = (props) => {
                     >Не удалось загрузить список групп или список преподавателей</Placeholder>
                 </Group>
             }
-            {favoriteGroups && groups && teachers && 
+            {favoriteGroups.length > 0 && groups && teachers && 
                 <Group header={<Header>Группы</Header>}>
                     <List>
                         {favoriteGroups.map(e => 
@@ -85,7 +85,7 @@ export const FavoritesListPanel = (props) => {
                     { toggleGroupFavoriteFlagSnackbar }
                 </Group>
             }
-            {favoriteTeachers && teachers && groups &&
+            {favoriteTeachers.length > 0 && teachers && groups &&
                 <Group header={<Header>Преподаватели</Header>}>
                     <List>
                         {favoriteTeachers.map(t => {
