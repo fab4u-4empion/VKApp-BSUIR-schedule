@@ -18,7 +18,8 @@ import {
 	ModalCard,
 	Button,
 	IOS,
-	ANDROID
+	ANDROID,
+	ConfigProvider
 } from "@vkontakte/vkui";
 import { Icon28EducationOutline, Icon28FavoriteOutline, Icon28UsersOutline } from "@vkontakte/icons";
 import { useContextProvider } from "./context/context";
@@ -57,25 +58,19 @@ const App = () => {
 
 	const modals = useMemo(() => {
 		return (
-			<ModalRoot activeModal={activeModal} onClose={() => setActiveModal(null)}>
-				<ModalCard 
-					id="lessonInfo" 
-					onClose={() => setActiveModal(null)}
-					header={modalContent?.header}
-					subheader={modalContent?.subHeader}
-					actions={!isDesktop && platform != IOS &&
-						<Button
-							size="m"
-							mode="primary"
-							onClick={() => setActiveModal(null)}
-						>
-							Ок
-						</Button>
-					}
-				>
-					{modalContent?.inner}
-				</ModalCard>
-			</ModalRoot>
+			<ConfigProvider platform="ios">
+				<ModalRoot activeModal={activeModal} onClose={() => setActiveModal(null)}>
+					<ModalCard
+						id="lessonInfo"
+
+						onClose={() => setActiveModal(null)}
+						header={modalContent?.header}
+						subheader={modalContent?.subHeader}
+					>
+						{modalContent?.inner}
+					</ModalCard>
+				</ModalRoot>
+			</ConfigProvider>
 		)
 	}, [modalContent, activeModal])
 

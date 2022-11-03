@@ -1,9 +1,10 @@
 import { Icon12Circle, Icon16Dropdown, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {Avatar, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
+import {Avatar, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useContextProvider } from '../../context/context'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
+import { ErrorSnackbar } from '../alerts/errorSnackbar'
 import { CalendarTabBar } from '../controls/CalendarTabBar'
 import { OutlineText } from '../typography/outlineText'
 
@@ -29,6 +30,9 @@ export const GroupSchedulePanel = (props) => {
 
     const [schedule, setSchedule] = useLocalStorage(null, `schedule_${props.groupName}`)
     const [dayInfo, setDayInfo] = useState(null)
+    const [fetching, setFetching] = useState(false)
+    const [loadingError, setLoadingError] = useState(false)
+    const [snackbar, setSnackbar] = useState(null)
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
@@ -42,9 +46,30 @@ export const GroupSchedulePanel = (props) => {
         if (!schedule) {
             axios
                 .get(`https://iis.bsuir.by/api/v1/schedule?studentGroup=${props.groupName}`)
-                .then(response => setSchedule(response.data))
+                .then(response => {
+                    setSchedule(response.data)
+                    setFetching(false)
+                })
+                .catch(e => {
+                    setLoadingError(true)
+                })
         }
     }, [])
+
+    const refreshHandler = () => {
+        setFetching(true)
+        axios
+            .get(`https://iis.bsuir.by/api/v1/schedule?studentGroup=${props.groupName}`)
+            .then(response => {
+                setSchedule(response.data)
+                setFetching(false)
+                setLoadingError(false)
+            })
+            .catch(e => {
+                setFetching(false)
+                setSnackbar(<ErrorSnackbar message="Не удалось обновить расписание" setSnackbar={setSnackbar}/>)
+            })
+    }
 
     const openModal = (lesson) => {
         const content = {
@@ -85,7 +110,10 @@ export const GroupSchedulePanel = (props) => {
                             style={{ transform: `rotate(${props.groupContextMenuOpened ? "180deg" : "0"})` }}
                         />
                     }
-                    onClick={() => props.onToggleGroupContextMenu()}
+                    onClick={() => {
+                        setSnackbar(null)
+                        props.onToggleGroupContextMenu()
+                    }}
                 >
                     {props.groupName}
                 </PanelHeaderContent>
@@ -109,9 +137,19 @@ export const GroupSchedulePanel = (props) => {
                     </Cell>
                 </List>
             </PanelHeaderContext>
-            {!schedule && 
+            {!schedule && !loadingError &&
                 <Group style={{paddingTop: 50}}>
                     <Spinner />
+                </Group>
+            }
+            {loadingError &&
+                <Group style={{ paddingTop: 50 }}>
+                    <PullToRefresh
+                        onRefresh={refreshHandler}
+                        isFetching={fetching}
+                    >
+                        <Placeholder>Не удалось загрузить расписание</Placeholder>
+                    </PullToRefresh>
                 </Group>
             }
             {schedule && 
@@ -144,54 +182,60 @@ export const GroupSchedulePanel = (props) => {
                             </Header>
                         }
                     >
-                        {currentSchedule && 
-                            <CardGrid size='l'>
-                                {currentSchedule.map(e =>
-                                    <Card mode='outline'>
-                                        <div className='ScheduleCardInner'>
-                                            <IconButton onClick={() => openModal(e)} className='ScheduleCardInfoButton'>
-                                                <Icon24InfoCircleOutline/>
-                                            </IconButton>
-                                            <div className='ScheduleCardInner__Time'>
-                                                <Headline 
-                                                    style={{ fontSize: ".95em" }} 
-                                                    level="1" 
-                                                    weight="1"
-                                                >{e.startLessonTime}</Headline>
-                                                <Headline 
-                                                    weight="2" 
-                                                    style={{ color: "var(--text_secondary)", fontSize: ".85em"}}
-                                                >{lessonNumber[e.startLessonTime]}</Headline>
-                                                <Headline 
-                                                    style={{ fontSize: ".9em" }} 
-                                                    level="2"
-                                                >{e.endLessonTime}</Headline>
-                                            </div>
-                                            <div className={`ScheduleCardInner__Separator ${lessonTypes[e.lessonTypeAbbrev]}`}></div>
-                                            <div className='ScheduleCardInner__Content'>
-                                                <Title level='3'>{e.subject}</Title>
-                                                <div className='LessonInfo'>
-                                                    <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
-                                                    {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>} 
-                                                    {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
+                        <PullToRefresh
+                            isFetching={fetching}
+                            onRefresh={refreshHandler}
+                        >
+                            {currentSchedule &&
+                                <CardGrid size='l'>
+                                    {currentSchedule.map((e, index) =>
+                                        <Card key={index} mode='outline'>
+                                            <div className='ScheduleCardInner'>
+                                                <IconButton onClick={() => openModal(e)} className='ScheduleCardInfoButton'>
+                                                    <Icon24InfoCircleOutline />
+                                                </IconButton>
+                                                <div className='ScheduleCardInner__Time'>
+                                                    <Headline
+                                                        style={{ fontSize: ".95em" }}
+                                                        level="1"
+                                                        weight="1"
+                                                    >{e.startLessonTime}</Headline>
+                                                    <Headline
+                                                        weight="2"
+                                                        style={{ color: "var(--text_secondary)", fontSize: ".85em" }}
+                                                    >{lessonNumber[e.startLessonTime]}</Headline>
+                                                    <Headline
+                                                        style={{ fontSize: ".9em" }}
+                                                        level="2"
+                                                    >{e.endLessonTime}</Headline>
                                                 </div>
-                                                {e.employees[0] && <Text style={{ color: "var(--text_secondary)", fontSize: ".9em" }}>{`${e.employees[0].lastName} ${e.employees[0]?.firstName} ${e.employees[0]?.middleName}`}</Text>}
-                                                {e.note && <Text style={{ color: "var(--vkui--color_background_negative)", fontSize: ".9em"}}>{e.note}</Text>}
+                                                <div className={`ScheduleCardInner__Separator ${lessonTypes[e.lessonTypeAbbrev]}`}></div>
+                                                <div className='ScheduleCardInner__Content'>
+                                                    <Title level='3'>{e.subject}</Title>
+                                                    <div className='LessonInfo'>
+                                                        <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
+                                                        {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>}
+                                                        {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
+                                                    </div>
+                                                    {e.employees[0] && <Text style={{ color: "var(--text_secondary)", fontSize: ".9em" }}>{`${e.employees[0].lastName} ${e.employees[0]?.firstName} ${e.employees[0]?.middleName}`}</Text>}
+                                                    {e.note && <Text style={{ color: "var(--vkui--color_background_negative)", fontSize: ".9em" }}>{e.note}</Text>}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </Card>
-                                )}
-                            </CardGrid>
-                        }
-                        {(!currentSchedule || !currentSchedule.length) &&
-                            <Placeholder>
-                                В этот день нет занятий
-                            </Placeholder>
-                        }
+                                        </Card>
+                                    )}
+                                </CardGrid>
+                            }
+                            {(!currentSchedule || !currentSchedule.length) &&
+                                <Placeholder>
+                                    В этот день нет занятий
+                                </Placeholder>
+                            }
+                        </PullToRefresh>
                         {toggleGroupFavoriteFlagSnackbar}
                     </Group>
                 </>
             }
+            {snackbar}
         </>
     )
 }

@@ -21,10 +21,11 @@ const App = lazy(() => import('./App'))
 
 const Index = () => {
     const platform = usePlatform()
-    const appearance = useAppearance()
+    const appearance = "light"
+    //platform === VKCOM ? "android" : platform
     return (
         <СontextProvider>
-            <ConfigProvider appearance={appearance} platform={platform === VKCOM ? "android" : platform}>
+            <ConfigProvider appearance={appearance} platform="ios">
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>
@@ -41,7 +42,7 @@ const Index = () => {
 
 try {
     localStorage.setItem('test', 'test')
-    sessionStorage.setItem("groupsFavorite", JSON.stringify([]))
+    sessionStorage.setItem("groupsFavorite", JSON.stringify(["051001"]))
     sessionStorage.setItem("teachersFavorite", JSON.stringify([]))
     bridge
         .send("VKWebAppStorageGet", { "keys": ["groupsFavorite", "teachersFavorite"] })
@@ -71,19 +72,20 @@ try {
                     ReactDOM.render(<Index />, document.getElementById("root"));
                 })
         })
-    // history.pushState({
-    //     activeStory: "favorites",
-    //     searchValue: "",
-    //     isSearch: false,
-    //     favorites_activePanel: "favorites-list",
-    //     body_overflow: "visible"
-    // }, "")
-    // ReactDOM.render(<Index/>, document.getElementById("root"));
+    history.pushState({
+        activeStory: "favorites",
+        searchValue: "",
+        isSearch: false,
+        favorites_activePanel: "favorites-list",
+        body_overflow: "visible"
+    }, "")
+    sessionStorage.setItem("week", JSON.stringify(2))
+    ReactDOM.render(<Index />, document.getElementById("root"));
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }
 
-import("./eruda").then(({ default: eruda }) => { }); //runtime download
+//import("./eruda").then(({ default: eruda }) => { }); //runtime download
 
 // if (process.env.NODE_ENV === "development") {
 // 	import("./eruda").then(({ default: eruda }) => {}); //runtime download
