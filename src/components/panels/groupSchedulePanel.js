@@ -118,7 +118,6 @@ export const GroupSchedulePanel = (props) => {
                     <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>
                 </>
         }
-        console.log(props.onOpenModal);
         props.onOpenModal(content)
     }
 
