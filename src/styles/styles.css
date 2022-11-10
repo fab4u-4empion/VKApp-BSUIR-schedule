@@ -64,6 +64,8 @@
     display: flex;
     margin: 3px 0px;
     column-gap: 7px;
+    flex-wrap: wrap;
+    row-gap: 3px;
 }
 
 .ScheduleCardInfoButton {

@@ -11,8 +11,8 @@ export const useContextProvider = () => {
 }
 
 export const СontextProvider = ({ children }) => {
-    const [favoriteGroups, setFavoritesGroups] = useState(JSON.parse(sessionStorage.getItem("groupsFavorite")))
-    const [favoriteTeachers, setFavoritesTeachers] = useState(JSON.parse(sessionStorage.getItem("teachersFavorite")))
+    const [favoriteGroups, setFavoritesGroups] = useLocalStorage([], "groupsFavorite")
+    const [favoriteTeachers, setFavoritesTeachers] = useLocalStorage([], "teachersFavorite")
 
     const [refreshGroupsErrorSnackbar, setRefreshGroupsErrorSnackbar] = useState(null)
     const [refreshTeachersErrorSnackbar, setRefreshTeachersErrorSnackbar] = useState(null)
@@ -110,44 +110,24 @@ export const СontextProvider = ({ children }) => {
 
     const toggleGroupsFavoriteFlag = groupName => {
         let favoriteGroupsTemp = [...favoriteGroups]
-        let errorMessage = ""
         if (favoriteGroupsTemp.includes(groupName)) {
             favoriteGroupsTemp.splice(favoriteGroupsTemp.indexOf(groupName), 1)
-            errorMessage = 'Не удалось удалить группу из "Избранное"'
         } else {
             favoriteGroupsTemp.push(groupName)
-            errorMessage = 'Не удалось добавить группу в "Избранное"'
         }
 
-        bridge
-            .send("VKWebAppStorageSet", { "key": "groupsFavorite", "value": JSON.stringify(favoriteGroupsTemp) })
-            .then(() => {
-                setFavoritesGroups(favoriteGroupsTemp)
-            })
-            .catch(() => {
-                setToggleGroupFavoriteFlagSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setToggleGroupFavoriteFlagSnackbar}/>)
-            })
+        setFavoritesGroups(favoriteGroupsTemp)
     }
 
     const toggleTeachersFavoriteFlag = teacherID => {
         let favoriteTeachersTemp = [...favoriteTeachers]
-        let errorMessage = ""
         if (favoriteTeachersTemp.includes(teacherID)) {
             favoriteTeachersTemp.splice(favoriteTeachersTemp.indexOf(teacherID), 1)
-            errorMessage = 'Не удалось удалить преподавателя из "Избранное"' 
         } else {
             favoriteTeachersTemp.push(teacherID)
-            errorMessage = 'Не удалось добавить преподавателя в "Избранное"' 
         }
 
-        bridge
-            .send("VKWebAppStorageSet", { "key": "teachersFavorite", "value": JSON.stringify(favoriteTeachersTemp) })
-            .then(() => {
-                setFavoritesTeachers(favoriteTeachersTemp)
-            })
-            .catch(() => {
-                setToggleTeacherFavoriteFlagSnackbar(<ErrorSnackbar message={errorMessage} setSnackbar={setToggleTeacherFavoriteFlagSnackbar} />)
-            })
+        setFavoritesTeachers(favoriteTeachersTemp)
     }
 
     const closeSnackbars = () => {

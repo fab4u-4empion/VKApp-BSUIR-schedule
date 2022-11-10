@@ -1,5 +1,5 @@
-import { Icon12Circle, Icon16Dropdown, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
-import {ActionSheet, ActionSheetDefaultIosCloseItem, ActionSheetItem, Avatar, Button, ButtonGroup, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, Link, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
+import { Icon12Circle, Icon16Dropdown, Icon24CalendarOutline, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
+import {ActionSheet, ActionSheetDefaultIosCloseItem, ActionSheetItem, Avatar, Button, ButtonGroup, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, Link, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderButton, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useContextProvider } from '../../context/context'
@@ -7,6 +7,7 @@ import { useFirstUpperCase } from '../../hooks/useFirstUpperCase'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
 import { ErrorSnackbar } from '../alerts/errorSnackbar'
 import { CalendarTabBar } from '../controls/CalendarTabBar'
+import { WeekDayTabBar } from '../controls/WeekDayTabBar'
 import { OutlineText } from '../typography/outlineText'
 
 const lessonTypes = {
@@ -37,17 +38,19 @@ export const GroupSchedulePanel = (props) => {
     const [loadingError, setLoadingError] = useState(false)
     const [snackbar, setSnackbar] = useState(null)
     const [subGroup, setSubgroup] = useState(0)
+    const [fullSchedule, setFullSchedule] = useState(false)
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
     const selectSubGroupButtonRef = useRef()
 
     const currentSchedule = useMemo(() => {
-        const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота',]
-        const daySchedule = schedule?.schedules[days[dayInfo?.date.getDay()]]
-        return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
+        const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье',]
+        console.log(dayInfo);
+        const daySchedule = !fullSchedule ? schedule?.schedules[days[dayInfo?.date.getDay()]] : schedule?.schedules[days[dayInfo + 1]]
+        return !fullSchedule ? daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
             return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true 
-        })
+        }) : daySchedule
     }, [dayInfo, subGroup])
 
     const actionSheet = useMemo(() => {
@@ -132,6 +135,9 @@ export const GroupSchedulePanel = (props) => {
                         onClick={() => props.groupContextMenuOpened ? history.go(-2) : history.back()}
                     />
                 }
+                after={
+                    <PanelHeaderButton onClick={() => setFullSchedule(!fullSchedule)}><Icon28CalendarOutline fill={!fullSchedule && 'var(--tabbar_inactive_icon)'}/></PanelHeaderButton>
+                }
             >
                 <PanelHeaderContent
                     aside={
@@ -195,14 +201,13 @@ export const GroupSchedulePanel = (props) => {
                         >
                             {schedule.studentGroupDto.specialityName}
                         </RichCell>
-                        <CalendarTabBar
-                            onSelect={setDayInfo}
-                        />
+                        {!fullSchedule && <CalendarTabBar onSelect={setDayInfo}/>}
+                        {fullSchedule && <WeekDayTabBar onSelect={setDayInfo}/>}
                         <Separator wide />
                     </FixedLayout>
                     <Group 
-                        style={{ paddingTop: fixedLayoutRef?.offsetHeight - 15 }}
-                        header={dayInfo &&
+                        style={{ paddingTop: fixedLayoutRef?.offsetHeight - 15 * !fullSchedule }}
+                        header={!fullSchedule && dayInfo &&
                             <Header
                                 subtitle={`${dayInfo.week}-ая учебная неделя`}
                                 aside={
@@ -211,7 +216,7 @@ export const GroupSchedulePanel = (props) => {
                                     </Link>
                                 }
                             >
-                                {useFirstUpperCase(dayInfo.date.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' }))}
+                                {useFirstUpperCase(dayInfo.date?.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' }))}
                             </Header>
                         }
                     >
@@ -249,6 +254,7 @@ export const GroupSchedulePanel = (props) => {
                                                         <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
                                                         {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>}
                                                         {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
+                                                        {fullSchedule && <OutlineText>{`нед. ${e.weekNumber.join(", ")}`}</OutlineText>}
                                                     </div>
                                                     {e.employees[0] && <Text style={{ color: "var(--text_secondary)", fontSize: ".9em" }}>{`${e.employees[0].lastName} ${e.employees[0]?.firstName} ${e.employees[0]?.middleName}`}</Text>}
                                                     {e.note && <Text style={{ color: "var(--vkui--color_background_negative)", fontSize: ".9em" }}>{e.note}</Text>}

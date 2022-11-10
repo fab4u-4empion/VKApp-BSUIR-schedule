@@ -7,6 +7,7 @@ import {
 	AppRoot,
     ScreenSpinner,
     usePlatform,
+    WebviewType,
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
@@ -23,7 +24,7 @@ const Index = () => {
     //platform === VKCOM ? "android" : platform
     return (
         <СontextProvider>
-            <ConfigProvider appearance={appearance} platform="android">
+            <ConfigProvider appearance={appearance} platform="android" webviewType={WebviewType.INTERNAL}>
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>
@@ -40,36 +41,7 @@ const Index = () => {
 
 try {
     localStorage.setItem('test', 'test')
-    sessionStorage.setItem("groupsFavorite", JSON.stringify(["051001"]))
-    sessionStorage.setItem("teachersFavorite", JSON.stringify([500434]))
-    bridge
-        .send("VKWebAppStorageGet", { "keys": ["groupsFavorite", "teachersFavorite"] })
-        .then(e => {
-            console.log(e);
-            if (e.keys[0].value) {
-                sessionStorage.setItem("groupsFavorite", e.keys[0].value)
-            }
-            if (e.keys[1].value) {
-                sessionStorage.setItem("teachersFavorite", e.keys[1].value)
-            }
-
-            history.pushState({
-                activeStory: "favorites",
-                searchValue: "",
-                isSearch: false,
-                favorites_activePanel: "favorites-list",
-                body_overflow: "visible"
-            }, "")
-
-            bridge.send("VKWebAppInit");
-
-            axios
-                .get("https://iis.bsuir.by/api/v1/schedule/current-week")
-                .then(response => {
-                    sessionStorage.setItem("week", JSON.stringify(response.data))
-                    ReactDOM.render(<Index />, document.getElementById("root"));
-                })
-        })
+    bridge.send("VKWebAppInit");
     history.pushState({
         activeStory: "favorites",
         searchValue: "",
