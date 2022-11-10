@@ -1,7 +1,7 @@
 import { Icon12Circle, Icon16Dropdown, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
 import {ActionSheet, ActionSheetDefaultIosCloseItem, ActionSheetItem, Avatar, Button, ButtonGroup, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, Link, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useContextProvider } from '../../context/context'
 import { useFirstUpperCase } from '../../hooks/useFirstUpperCase'
 import { useLocalStorage } from '../../hooks/useLocalStorage'
@@ -40,6 +40,8 @@ export const GroupSchedulePanel = (props) => {
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
+    const selectSubGroupButtonRef = useRef()
+
     const currentSchedule = useMemo(() => {
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота',]
         const daySchedule = schedule?.schedules[days[dayInfo?.date.getDay()]]
@@ -53,6 +55,7 @@ export const GroupSchedulePanel = (props) => {
             <ActionSheet 
                 onClose={() => props.onOpenPopout(null)}
                 iosCloseItem={<ActionSheetDefaultIosCloseItem />}
+                toggleRef={selectSubGroupButtonRef}
             >
                 {subGroupText.map((text, index) => 
                     <ActionSheetItem
@@ -63,8 +66,7 @@ export const GroupSchedulePanel = (props) => {
                     >
                         {text}
                     </ActionSheetItem>
-                )
-                }
+                )}
             </ActionSheet>
         )
     }, [subGroup])
@@ -110,7 +112,8 @@ export const GroupSchedulePanel = (props) => {
                             className={`${lessonTypes[lesson.lessonTypeAbbrev]}`}
                             shadow={false}
                         />
-                        {lesson.employees[0] && <Text style={{ color: "var(--text_secondary)", textAlign: "center" }}>{`${lesson.employees[0].lastName} ${lesson.employees[0]?.firstName} ${lesson.employees[0]?.middleName}`}</Text>}
+                        {lesson.employees[0] && <Text style={{ textAlign: "center" }}>{`${lesson.employees[0].lastName} ${lesson.employees[0]?.firstName} ${lesson.employees[0]?.middleName}`}</Text>}
+                        {lesson.employees[0] && <Text style={{ color: "var(--text_secondary)", textAlign: "center" }}>{lesson.employees[0]?.rank}</Text>}
                     </div>
                     {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline/>} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>}
                     <SimpleCell before={<Icon28ClockOutline />} disabled indicator={`${lesson.startLessonTime} - ${lesson.endLessonTime}`}>Время</SimpleCell>
@@ -203,7 +206,7 @@ export const GroupSchedulePanel = (props) => {
                             <Header
                                 subtitle={`${dayInfo.week}-ая учебная неделя`}
                                 aside={
-                                    <Link onClick={() => props.onOpenPopout(actionSheet)} mode="outline" size="s">
+                                    <Link getRootRef={selectSubGroupButtonRef} onClick={() => props.onOpenPopout(actionSheet)} mode="outline" size="s">
                                         {subGroupText[subGroup]}
                                     </Link>
                                 }

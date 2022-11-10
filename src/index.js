@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import { Suspense, lazy } from "react";
 import ReactDOM from "react-dom";
 import bridge from "@vkontakte/vk-bridge";
 import {
@@ -7,8 +7,6 @@ import {
 	AppRoot,
     ScreenSpinner,
     usePlatform,
-    VKCOM,
-    useAppearance
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import "./styles/styles.css"
@@ -25,7 +23,7 @@ const Index = () => {
     //platform === VKCOM ? "android" : platform
     return (
         <СontextProvider>
-            <ConfigProvider appearance={appearance} platform="ios">
+            <ConfigProvider appearance={appearance} platform="android">
                 <AdaptivityProvider>
                     <AppRoot>
                         <ErrorBoundary>
@@ -43,7 +41,7 @@ const Index = () => {
 try {
     localStorage.setItem('test', 'test')
     sessionStorage.setItem("groupsFavorite", JSON.stringify(["051001"]))
-    sessionStorage.setItem("teachersFavorite", JSON.stringify([]))
+    sessionStorage.setItem("teachersFavorite", JSON.stringify([500434]))
     bridge
         .send("VKWebAppStorageGet", { "keys": ["groupsFavorite", "teachersFavorite"] })
         .then(e => {
@@ -79,8 +77,12 @@ try {
         favorites_activePanel: "favorites-list",
         body_overflow: "visible"
     }, "")
-    sessionStorage.setItem("week", JSON.stringify(2))
-    ReactDOM.render(<Index />, document.getElementById("root"));
+    axios
+        .get("https://iis.bsuir.by/api/v1/schedule/current-week")
+        .then(response => {
+            sessionStorage.setItem("week", JSON.stringify(response.data))
+            ReactDOM.render(<Index />, document.getElementById("root"));
+        })
 } catch {
     ReactDOM.render(<CookiePlaceholder/>, document.getElementById("root"));
 }

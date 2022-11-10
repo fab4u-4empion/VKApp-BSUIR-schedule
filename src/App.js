@@ -46,7 +46,7 @@ const App = () => {
 	const [teacherContextMenuOpened, setTeacherContextMenuOpened] = useState(false)
 	const [activeModal, setActiveModal] = useState(null)
 	const [modalContent, setModalContent] = useState(null)
-	const [popout, setPopuot] = useState(null)
+	const [popout, setPopout] = useState(null)
 
 	const { favoriteGroups, toggleGroupsFavoriteFlag, favoriteTeachers, toggleTeachersFavoriteFlag, closeSnackbars } = useContextProvider()
 	
@@ -321,7 +321,7 @@ const App = () => {
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
 								onOpenModal={openModal}
-								onOpenPopout={setPopuot}
+								onOpenPopout={setPopout}
 							/>
 						</Panel>
 						<Panel id="teacher-schedule">
@@ -348,7 +348,7 @@ const App = () => {
 								favoriteGroups={favoriteGroups}
 								groupName={groupName}
 								onOpenModal={openModal}
-								onOpenPopout={setPopuot}
+								onOpenPopout={setPopout}
 							/>
 						</Panel>
 					</View>
