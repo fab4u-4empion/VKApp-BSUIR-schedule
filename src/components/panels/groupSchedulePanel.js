@@ -1,4 +1,4 @@
-import { Icon12Circle, Icon16Dropdown, Icon24CalendarOutline, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
+import { Icon12Circle, Icon16Dropdown, Icon24CalendarOutline, Icon24InfoCircleOutline, Icon28CalendarOutline, Icon28ClockOutline, Icon28EducationOutline, Icon28Favorite, Icon28FavoriteOutline, Icon28HomeOutline, Icon28UsersOutline } from '@vkontakte/icons'
 import {ActionSheet, ActionSheetDefaultIosCloseItem, ActionSheetItem, Avatar, Button, ButtonGroup, Card, CardGrid, Cell, Div, FixedLayout, Group, Header, Headline, IconButton, InitialsAvatar, Link, List, MiniInfoCell, PanelHeader, PanelHeaderBack, PanelHeaderButton, PanelHeaderContent, PanelHeaderContext, Placeholder, PullToRefresh, RichCell, Separator, SimpleCell, Spinner, Text, Title} from '@vkontakte/vkui'
 import axios from 'axios'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -14,6 +14,8 @@ const lessonTypes = {
     "ЛК": "green",
     "ПЗ": "yellow",
     "ЛР": "red",
+    "Экзамен": "red",
+    "Консультация": "green",
 }
 
 const lessonNumber = {
@@ -39,6 +41,7 @@ export const GroupSchedulePanel = (props) => {
     const [snackbar, setSnackbar] = useState(null)
     const [subGroup, setSubgroup] = useState(0)
     const [fullSchedule, setFullSchedule] = useState(false)
+    const [examsSchedule, setExamsSchedule] = useState(false)
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
@@ -46,7 +49,8 @@ export const GroupSchedulePanel = (props) => {
 
     const currentSchedule = useMemo(() => {
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье',]
-        console.log(dayInfo);
+        if (examsSchedule)
+            return schedule?.exams
         const daySchedule = !fullSchedule ? schedule?.schedules[days[dayInfo?.date.getDay()]] : schedule?.schedules[days[dayInfo + 1]]
         return !fullSchedule ? daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
             return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true 
@@ -88,6 +92,10 @@ export const GroupSchedulePanel = (props) => {
         }
     }, [])
 
+    useEffect(() => {
+        if (examsSchedule) setDayInfo(null)
+    }, [examsSchedule])
+
     const refreshHandler = () => {
         setFetching(true)
         axios
@@ -121,7 +129,7 @@ export const GroupSchedulePanel = (props) => {
                     {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline/>} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>}
                     <SimpleCell before={<Icon28ClockOutline />} disabled indicator={`${lesson.startLessonTime} - ${lesson.endLessonTime}`}>Время</SimpleCell>
                     {lesson.numSubgroup > 0 && <SimpleCell before={<Icon28UsersOutline />} disabled indicator={lesson.numSubgroup}>Подгруппа</SimpleCell>}
-                    <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>
+                    {!examsSchedule && <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>}
                 </>
         }
         props.onOpenModal(content)
@@ -136,8 +144,11 @@ export const GroupSchedulePanel = (props) => {
                     />
                 }
                 after={
-                    <PanelHeaderButton onClick={() => setFullSchedule(!fullSchedule)}><Icon28CalendarOutline fill={!fullSchedule && 'var(--tabbar_inactive_icon)'}/></PanelHeaderButton>
-                }
+                    <>
+                        {schedule?.exams.length > 0 && <PanelHeaderButton onClick={() => { setFullSchedule(false); setExamsSchedule(!examsSchedule);}}><Icon28EducationOutline fill={!examsSchedule && 'var(--tabbar_inactive_icon)'} /></PanelHeaderButton>}
+                        <PanelHeaderButton onClick={() => { setFullSchedule(!fullSchedule); setExamsSchedule(false) }}><Icon28CalendarOutline fill={!fullSchedule && 'var(--tabbar_inactive_icon)'} /></PanelHeaderButton>
+                    </>
+                    }
             >
                 <PanelHeaderContent
                     aside={
@@ -201,23 +212,34 @@ export const GroupSchedulePanel = (props) => {
                         >
                             {schedule.studentGroupDto.specialityName}
                         </RichCell>
-                        {!fullSchedule && <CalendarTabBar onSelect={setDayInfo}/>}
-                        {fullSchedule && <WeekDayTabBar onSelect={setDayInfo}/>}
+                        {!examsSchedule && <>
+                            {!fullSchedule && <CalendarTabBar onSelect={setDayInfo} />}
+                            {fullSchedule && <WeekDayTabBar onSelect={setDayInfo} />}
+                        </>}
                         <Separator wide />
                     </FixedLayout>
-                    <Group 
-                        style={{ paddingTop: fixedLayoutRef?.offsetHeight - 15 * !fullSchedule }}
-                        header={!fullSchedule && dayInfo &&
-                            <Header
-                                subtitle={`${dayInfo.week}-ая учебная неделя`}
-                                aside={
-                                    <Link getRootRef={selectSubGroupButtonRef} onClick={() => props.onOpenPopout(actionSheet)} mode="outline" size="s">
-                                        {subGroupText[subGroup]}
-                                    </Link>
+                    <Group
+                        style={{ paddingTop: fixedLayoutRef?.offsetHeight - 15 * !fullSchedule}}
+                        header={
+                            !fullSchedule && <>
+                                {!examsSchedule && dayInfo &&
+                                    <Header
+                                        subtitle={`${dayInfo.week}-ая учебная неделя`}
+                                        aside={
+                                            <Link getRootRef={selectSubGroupButtonRef} onClick={() => props.onOpenPopout(actionSheet)} mode="outline" size="s">
+                                                {subGroupText[subGroup]}
+                                            </Link>
+                                        }
+                                    >
+                                        {useFirstUpperCase(dayInfo.date?.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' }))}
+                                    </Header>
                                 }
-                            >
-                                {useFirstUpperCase(dayInfo.date?.toLocaleString("ru-RU", { day: 'numeric', month: 'long', weekday: 'long' }))}
-                            </Header>
+                                {examsSchedule && 
+                                    <Header style={{justifyContent: "center"}}>
+                                        Экзамены
+                                    </Header>
+                                }
+                            </>
                         }
                     >
                         <PullToRefresh
@@ -241,7 +263,7 @@ export const GroupSchedulePanel = (props) => {
                                                     <Headline
                                                         weight="2"
                                                         style={{ color: "var(--text_secondary)", fontSize: ".85em" }}
-                                                    >{lessonNumber[e.startLessonTime]}</Headline>
+                                                    >{examsSchedule ? "|" : lessonNumber[e.startLessonTime]}</Headline>
                                                     <Headline
                                                         style={{ fontSize: ".9em" }}
                                                         level="2"
