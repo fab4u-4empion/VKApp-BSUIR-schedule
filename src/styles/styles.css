@@ -14,6 +14,7 @@
 }
 
 .ScheduleCardInner__Separator {
+    min-width: 5px;
     width: 5px;
     border-radius: 10px;
     background-color: gray;
@@ -48,6 +49,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    min-width: 38px;
 }
 
 .OutlineText {
@@ -65,7 +67,7 @@
     margin: 3px 0px;
     column-gap: 7px;
     flex-wrap: wrap;
-    row-gap: 3px;
+    row-gap: 4px;
 }
 
 .ScheduleCardInfoButton {

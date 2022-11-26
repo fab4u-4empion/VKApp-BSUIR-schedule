@@ -42,6 +42,7 @@ export const GroupSchedulePanel = (props) => {
     const [subGroup, setSubgroup] = useState(0)
     const [fullSchedule, setFullSchedule] = useState(false)
     const [examsSchedule, setExamsSchedule] = useState(false)
+    const [endDate, setEndDate] = useState(null)
 
     const [fixedLayoutRef, setFixedLayoutRef] = useState(null)
 
@@ -52,9 +53,13 @@ export const GroupSchedulePanel = (props) => {
         if (examsSchedule)
             return schedule?.exams
         const daySchedule = !fullSchedule ? schedule?.schedules[days[dayInfo?.date.getDay()]] : schedule?.schedules[days[dayInfo + 1]]
-        return !fullSchedule ? daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
-            return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true 
-        }) : daySchedule
+        if (fullSchedule)
+            return daySchedule
+        if (Date.parse(schedule?.endDate.split(".").reverse().join("/")) - dayInfo?.date > -86400000)
+            return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
+                return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true
+            })
+        return []
     }, [dayInfo, subGroup])
 
     const actionSheet = useMemo(() => {
@@ -126,7 +131,8 @@ export const GroupSchedulePanel = (props) => {
                         {lesson.employees[0] && <Text style={{ textAlign: "center" }}>{`${lesson.employees[0].lastName} ${lesson.employees[0]?.firstName} ${lesson.employees[0]?.middleName}`}</Text>}
                         {lesson.employees[0] && <Text style={{ color: "var(--text_secondary)", textAlign: "center" }}>{lesson.employees[0]?.rank}</Text>}
                     </div>
-                    {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline/>} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>}
+                    {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline/>} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>} 
+                    {examsSchedule && <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={new Date(Date.parse(lesson.dateLesson.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "long" })}>Дата</SimpleCell>}
                     <SimpleCell before={<Icon28ClockOutline />} disabled indicator={`${lesson.startLessonTime} - ${lesson.endLessonTime}`}>Время</SimpleCell>
                     {lesson.numSubgroup > 0 && <SimpleCell before={<Icon28UsersOutline />} disabled indicator={lesson.numSubgroup}>Подгруппа</SimpleCell>}
                     {!examsSchedule && <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>}
@@ -146,7 +152,7 @@ export const GroupSchedulePanel = (props) => {
                 after={
                     <>
                         {schedule?.exams.length > 0 && <PanelHeaderButton onClick={() => { setFullSchedule(false); setExamsSchedule(!examsSchedule);}}><Icon28EducationOutline fill={!examsSchedule && 'var(--tabbar_inactive_icon)'} /></PanelHeaderButton>}
-                        <PanelHeaderButton onClick={() => { setFullSchedule(!fullSchedule); setExamsSchedule(false) }}><Icon28CalendarOutline fill={!fullSchedule && 'var(--tabbar_inactive_icon)'} /></PanelHeaderButton>
+                        {schedule && <PanelHeaderButton onClick={() => { setFullSchedule(!fullSchedule); setExamsSchedule(false) }}><Icon28CalendarOutline fill={!fullSchedule && 'var(--tabbar_inactive_icon)'} /></PanelHeaderButton>}
                     </>
                     }
             >
@@ -274,6 +280,7 @@ export const GroupSchedulePanel = (props) => {
                                                     <Title level='3'>{e.subject}</Title>
                                                     <div className='LessonInfo'>
                                                         <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
+                                                        {examsSchedule && <OutlineText>{new Date(Date.parse(e.dateLesson.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "short" })}</OutlineText>}
                                                         {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>}
                                                         {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
                                                         {fullSchedule && <OutlineText>{`нед. ${e.weekNumber.join(", ")}`}</OutlineText>}

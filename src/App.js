@@ -331,6 +331,7 @@ const App = () => {
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
+								onOpenModal={openModal}
 							/>
 						</Panel>
 					</View>
@@ -365,6 +366,7 @@ const App = () => {
 								onToggleTeachersFavoriteFlagHandler={toggleTeachersFavoriteFlagHandler}
 								favoriteTeachers={favoriteTeachers}
 								teacher={teacher}
+								onOpenModal={openModal}
 							/>
 						</Panel>
 					</View>
