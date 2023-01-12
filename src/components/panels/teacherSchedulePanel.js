@@ -55,7 +55,10 @@ export const TeacherSchedulePanel = (props) => {
             axios
                 .get(`https://iis.bsuir.by/api/v1/employees/schedule/${props.teacher.urlId}`)
                 .then(response => {
-                    setSchedule(response.data)
+                    const data = response.data
+                    data.endDate = data.endDate.split(".").reverse().join("/")
+                    data.startDate = data.startDate.split(".").reverse().join("/")
+                    setSchedule(data)
                     setFetching(false)
                 })
                 .catch(e => {
@@ -73,7 +76,10 @@ export const TeacherSchedulePanel = (props) => {
         axios
             .get(`https://iis.bsuir.by/api/v1/employees/schedule/${props.teacher.urlId}`)
             .then(response => {
-                setSchedule(response.data)
+                const data = response.data
+                data.endDate = data.endDate.split(".").reverse().join("/")
+                data.startDate = data.startDate.split(".").reverse().join("/")
+                setSchedule(data)
                 setFetching(false)
                 setLoadingError(false)
             })
@@ -99,6 +105,7 @@ export const TeacherSchedulePanel = (props) => {
                         <Text style={{ textAlign: "center" }}>{lesson.studentGroups.map(g => g.name).join(", ")}</Text>
                     </div>
                     {lesson.auditories[0] && <SimpleCell before={<Icon28HomeOutline />} disabled indicator={lesson.auditories[0]}>Аудитория</SimpleCell>}
+                    {examsSchedule && <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={new Date(Date.parse(lesson.dateLesson.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "long" })}>Дата</SimpleCell>}
                     <SimpleCell before={<Icon28ClockOutline />} disabled indicator={`${lesson.startLessonTime} - ${lesson.endLessonTime}`}>Время</SimpleCell>
                     {lesson.numSubgroup > 0 && <SimpleCell before={<Icon28UsersOutline />} disabled indicator={lesson.numSubgroup}>Подгруппа</SimpleCell>}
                     {!examsSchedule && <SimpleCell before={<Icon28CalendarOutline />} disabled indicator={lesson.weekNumber.join(", ")}>Недели</SimpleCell>}
@@ -239,6 +246,7 @@ export const TeacherSchedulePanel = (props) => {
                                                 <Title level='3'>{e.subject}</Title>
                                                 <div className='LessonInfo'>
                                                     <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
+                                                    {examsSchedule && <OutlineText>{new Date(Date.parse(e.dateLesson?.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "short" })}</OutlineText>}
                                                     {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>}
                                                     {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
                                                     {fullSchedule && <OutlineText>{`нед. ${e.weekNumber.join(", ")}`}</OutlineText>}

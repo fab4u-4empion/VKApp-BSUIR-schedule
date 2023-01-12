@@ -49,7 +49,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    min-width: 38px;
+    min-width: 40px;
 }
 
 .OutlineText {

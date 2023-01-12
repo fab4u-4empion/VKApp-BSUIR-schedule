@@ -49,13 +49,14 @@ export const GroupSchedulePanel = (props) => {
     const selectSubGroupButtonRef = useRef()
 
     const currentSchedule = useMemo(() => {
+        window.scrollTo(0, 0)
         const days = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье',]
         if (examsSchedule)
             return schedule?.exams
         const daySchedule = !fullSchedule ? schedule?.schedules[days[dayInfo?.date.getDay()]] : schedule?.schedules[days[dayInfo + 1]]
         if (fullSchedule)
             return daySchedule
-        if (Date.parse(schedule?.endDate.split(".").reverse().join("/")) - dayInfo?.date > -86400000)
+        if (Date.parse(schedule?.endDate) - dayInfo?.date > -86400000 && Date.parse(schedule?.startDate.split(".").reverse().join("/")) - dayInfo?.date < 0)
             return daySchedule?.filter(e => e.weekNumber.includes(dayInfo.week)).filter(e => {
                 return subGroup ? e.numSubgroup == 0 || e.numSubgroup == subGroup : true
             })
@@ -88,7 +89,10 @@ export const GroupSchedulePanel = (props) => {
             axios
                 .get(`https://iis.bsuir.by/api/v1/schedule?studentGroup=${props.groupName}`)
                 .then(response => {
-                    setSchedule(response.data)
+                    const data = response.data
+                    data.endDate = data.endDate.split(".").reverse().join("/")
+                    data.startDate = data.startDate.split(".").reverse().join("/")
+                    setSchedule(data)
                     setFetching(false)
                 })
                 .catch(e => {
@@ -106,7 +110,10 @@ export const GroupSchedulePanel = (props) => {
         axios
             .get(`https://iis.bsuir.by/api/v1/schedule?studentGroup=${props.groupName}`)
             .then(response => {
-                setSchedule(response.data)
+                const data = response.data
+                data.endDate = data.endDate.split(".").reverse().join("/")
+                data.startDate = data.startDate.split(".").reverse().join("/")
+                setSchedule(data)
                 setFetching(false)
                 setLoadingError(false)
             })
@@ -280,7 +287,7 @@ export const GroupSchedulePanel = (props) => {
                                                     <Title level='3'>{e.subject}</Title>
                                                     <div className='LessonInfo'>
                                                         <OutlineText>{e.lessonTypeAbbrev}</OutlineText>
-                                                        {examsSchedule && <OutlineText>{new Date(Date.parse(e.dateLesson.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "short" })}</OutlineText>}
+                                                        {examsSchedule && <OutlineText>{new Date(Date.parse(e.dateLesson?.split(".").reverse().join("/"))).toLocaleString("ru-RU", { day: "numeric", month: "short" })}</OutlineText>}
                                                         {e.auditories[0] && <OutlineText>{e.auditories[0]}</OutlineText>}
                                                         {e.numSubgroup != 0 && <OutlineText>{e.numSubgroup}</OutlineText>}
                                                         {fullSchedule && <OutlineText>{`нед. ${e.weekNumber.join(", ")}`}</OutlineText>}
